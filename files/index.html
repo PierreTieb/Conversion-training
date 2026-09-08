@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entraînement aux conversions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bg-science" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+      <circle class="orbit" cx="180" cy="140" r="90" />
+      <circle class="orbit" cx="180" cy="140" r="140" />
+      <circle class="atom-dot" cx="270" cy="140" r="6" />
+      <circle class="atom-dot" cx="90" cy="140" r="6" />
+      <circle class="molecule" cx="980" cy="620" r="10" />
+      <circle class="molecule" cx="1040" cy="660" r="16" />
+      <circle class="molecule" cx="930" cy="670" r="7" />
+      <line class="bond" x1="980" y1="620" x2="1040" y2="660" />
+      <line class="bond" x1="980" y1="620" x2="930" y2="670" />
+      <circle class="orbit small" cx="1080" cy="120" r="60" />
+      <circle class="atom-dot" cx="1140" cy="120" r="5" />
+      <path class="flask" d="M560 40 v60 l-40 90 a20 20 0 0 0 18 30 h100 a20 20 0 0 0 18 -30 l-40 -90 v-60 z" />
+      <circle class="molecule" cx="140" cy="620" r="8" />
+      <circle class="molecule" cx="200" cy="600" r="12" />
+      <line class="bond" x1="140" y1="620" x2="200" y2="600" />
+    </svg>
+  </div>
+
+  <main id="app">
+
+    <section id="screen-home" class="screen active">
+      <div class="home-inner">
+        <h1>Entraînement aux conversions</h1>
+        <p class="subtitle">Choisis ton niveau pour commencer</p>
+        <div class="difficulty-choices">
+          <button class="diff-card diff-facile" data-diff="facile" type="button">
+            <span class="diff-name">Facile</span>
+            <span class="diff-desc">Nombres entiers, unités proches</span>
+          </button>
+          <button class="diff-card diff-moyen" data-diff="moyen" type="button">
+            <span class="diff-name">Moyen</span>
+            <span class="diff-desc">Toutes les conversions, avec décimales</span>
+          </button>
+          <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
+            <span class="diff-name">Évaluation</span>
+            <span class="diff-desc">5 conversions chronométrées</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-exercise" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back" class="btn-text" type="button">&larr; Retour</button>
+        <div id="chrono" class="chrono hidden">⏱ <span id="chrono-value">0.0 s</span></div>
+      </div>
+
+      <div class="exercise-card">
+        <p class="exercise-label" id="exercise-label">Convertis :</p>
+        <div class="conversion-line">
+          <span id="from-value" class="conv-value">12,4</span>
+          <span id="from-unit" class="conv-unit">km</span>
+          <span class="conv-arrow">&rarr;</span>
+          <input id="answer-input" class="answer-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse" />
+          <span id="to-unit" class="conv-unit">dm</span>
+        </div>
+
+        <div class="exercise-actions">
+          <button id="btn-validate" class="btn-primary" type="button">Valider</button>
+          <button id="btn-next" class="btn-secondary hidden" type="button">Conversion suivante</button>
+        </div>
+
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="screen-recap" class="screen">
+      <div class="recap-card" id="recap-card">
+        <h2 id="recap-title">Résultats</h2>
+        <p class="recap-score" id="recap-score">Score : 0/5</p>
+        <p class="recap-time" id="recap-time">Temps moyen : 0 s</p>
+        <p class="recap-message" id="recap-message"></p>
+        <div class="recap-actions">
+          <button id="btn-restart" class="btn-primary" type="button">Relancer une série</button>
+          <button id="btn-home" class="btn-secondary" type="button">Choisir une autre difficulté</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="draft-table-wrap" class="draft-wrap hidden">
+      <h3 class="draft-title">Brouillon — tableau de conversion</h3>
+      <div id="draft-table" class="draft-table"></div>
+    </section>
+
+  </main>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <script src="js/units.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
