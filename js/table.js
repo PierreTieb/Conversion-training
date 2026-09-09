@@ -1,11 +1,13 @@
 // table.js
-// Construit le tableau de conversion "brouillon" : 7 colonnes (k_ h_ da_ _ d_ c_ m_),
-// une case texte invisible par colonne, avance automatique du curseur vers la
-// droite après la saisie d'un chiffre (sauf en dernière colonne m_, où le
-// curseur se retire et il faut recliquer).
+// Construit le tableau de conversion "brouillon" : 9 colonnes (une case vide
+// au-delà de kilo, k h da _ d c m, une case vide au-delà de milli), une case
+// texte invisible par colonne, avance automatique du curseur vers la droite
+// après la saisie d'un chiffre (sauf en toute dernière colonne, où le
+// curseur se retire et il faut recliquer). Le tableau peut être vidé à la
+// demande (à chaque nouvelle conversion).
 
 (function () {
-  const COLUMN_LABELS = ['k_', 'h_', 'da_', '_', 'd_', 'c_', 'm_'];
+  const COLUMN_LABELS = ['', 'k_', 'h_', 'da_', '_', 'd_', 'c_', 'm_', ''];
 
   function buildTable(container) {
     container.innerHTML = '';
@@ -34,7 +36,7 @@
       input.className = 'draft-input';
       input.inputMode = 'numeric';
       input.autocomplete = 'off';
-      input.setAttribute('aria-label', 'Colonne ' + label);
+      input.setAttribute('aria-label', label ? 'Colonne ' + label : 'Colonne supplémentaire');
 
       cell.appendChild(input);
       inputRow.appendChild(cell);
@@ -45,7 +47,6 @@
 
     inputs.forEach((input, idx) => {
       input.addEventListener('input', () => {
-        // On ne garde qu'un seul chiffre
         const digitOnly = input.value.replace(/[^0-9]/g, '').slice(0, 1);
         input.value = digitOnly;
 
@@ -54,7 +55,6 @@
             inputs[idx + 1].focus();
             inputs[idx + 1].select();
           } else {
-            // Dernière colonne (m_) : le curseur se retire
             input.blur();
           }
         }
@@ -69,5 +69,14 @@
     });
   }
 
-  window.DraftTable = { buildTable };
+  // Vide toutes les cases du tableau sans le reconstruire (les écouteurs
+  // restent en place).
+  function resetTable(container) {
+    const inputs = container.querySelectorAll('.draft-input');
+    inputs.forEach((input) => {
+      input.value = '';
+    });
+  }
+
+  window.DraftTable = { buildTable, resetTable };
 })();

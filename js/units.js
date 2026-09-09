@@ -1,7 +1,7 @@
 // units.js
-// Définit les 3 grandeurs (masse, distance, volume) et les 7 rangs de préfixes
-// k_ h_ da_ _ d_ c_ m_ , chaque rang représente une puissance de 10 par rapport
-// à l'unité de base (g, m ou L).
+// Définit les 3 grandeurs (masse, distance, volume), les 7 rangs de préfixes
+// (k h da _ d c m) et des utilitaires pour le mode Custom (identifiants
+// d'unité, regroupement par famille).
 
 (function () {
   const PREFIXES = ['k', 'h', 'da', '', 'd', 'c', 'm'];
@@ -14,9 +14,50 @@
     { key: 'volume', base: 'L' }
   ];
 
+  const CATEGORY_LABELS = {
+    masse: 'Masse',
+    distance: 'Longueur',
+    volume: 'Volume'
+  };
+
   function unitLabel(category, rank) {
     return PREFIXES[rank] + category.base;
   }
 
-  window.Units = { PREFIXES, EXPONENTS, CATEGORIES, unitLabel };
+  function categoryByKey(key) {
+    return CATEGORIES.find((c) => c.key === key);
+  }
+
+  // Identifiant stable d'une unité, utilisé comme value d'option <select>
+  // (ex: "distance:0" pour km)
+  function unitId(categoryKey, rank) {
+    return categoryKey + ':' + rank;
+  }
+
+  function parseUnitId(id) {
+    const [categoryKey, rankStr] = id.split(':');
+    return { categoryKey, rank: parseInt(rankStr, 10) };
+  }
+
+  // Retourne la liste des 7 unités d'une famille, dans l'ordre k -> m
+  function unitsForCategory(categoryKey) {
+    const category = categoryByKey(categoryKey);
+    return PREFIXES.map((prefix, rank) => ({
+      id: unitId(categoryKey, rank),
+      rank,
+      label: unitLabel(category, rank)
+    }));
+  }
+
+  window.Units = {
+    PREFIXES,
+    EXPONENTS,
+    CATEGORIES,
+    CATEGORY_LABELS,
+    unitLabel,
+    categoryByKey,
+    unitId,
+    parseUnitId,
+    unitsForCategory
+  };
 })();

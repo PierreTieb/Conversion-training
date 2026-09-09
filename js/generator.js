@@ -1,6 +1,15 @@
 // generator.js
-// Génère des conversions aléatoires pour les modes "facile", "moyen" et "evaluation"
-// (le mode evaluation réutilise les règles du mode "moyen").
+// Génère des conversions aléatoires pour les modes "facile", "moyen" et
+// "evaluation" (evaluation réutilise les règles du mode "moyen"), en
+// respectant la capacité du tableau brouillon à 9 colonnes : le nombre
+// affiché ne doit jamais nécessiter plus de colonnes que celles disponibles,
+// que ce soit avec l'unité de départ ou l'unité d'arrivée.
+//
+// Colonnes du tableau (9 au total) :
+//   [extra-gauche] k h da _ d c m [extra-droite]
+// Un rang r (0=k ... 6=m) occupe la colonne (r+1) sur 9 (index 0..8).
+//   - colonnes disponibles à sa gauche = (r+1)   -> chiffres entiers max = r+2
+//   - colonnes disponibles à sa droite = (7-r)   -> chiffres décimaux max = 7-r
 
 (function () {
   function randInt(min, max) {
@@ -28,48 +37,46 @@
       const to = options[randInt(0, options.length - 1)];
       return { from, to };
     }
-    // Filet de sécurité (ne devrait jamais arriver)
-    return { from: 3, to: 0 };
+    return { from: 3, to: 0 }; // filet de sécurité, ne devrait jamais servir
   }
 
   function computeAnswer(value, fromRank, toRank) {
     const shift = Units.EXPONENTS[fromRank] - Units.EXPONENTS[toRank];
     let result = value * Math.pow(10, shift);
-    // Arrondi pour neutraliser les artefacts de virgule flottante
-    result = Math.round(result * 1e6) / 1e6;
+    result = Math.round(result * 1e6) / 1e6; // neutralise les artefacts flottants
     return result;
   }
 
-  // Valeur entière simple (mode facile) : 1 à 99
-  function randomIntegerValue() {
-    return randInt(1, 99);
-  }
+  // Détermine la valeur (partie entière + décimales) en respectant la
+  // capacité du tableau à 9 colonnes pour les deux rangs concernés, plus la
+  // restriction "99 max" du mode facile et le plafond global de 3 décimales.
+  function randomValueForRanks(fromRank, toRank, level) {
+    let maxIntDigits = Math.min(fromRank, toRank) + 2;
+    if (level === 'facile') {
+      maxIntDigits = Math.min(maxIntDigits, 2); // reste dans l'esprit "<= 99"
+    }
 
-  // Valeur avec décimales possibles (mode moyen / évaluation)
-  function randomDecimalValue() {
-    const intPart = randInt(0, 999);
-    let value = intPart === 0 ? randInt(1, 9) : intPart;
-    if (Math.random() < 0.65) {
-      const decimals = randInt(1, 2);
-      const maxDec = Math.pow(10, decimals) - 1;
-      const decPart = randInt(1, maxDec);
-      value = parseFloat((value + decPart / Math.pow(10, decimals)).toFixed(decimals));
+    let maxDecDigits = Math.min(3, 7 - Math.max(fromRank, toRank));
+    if (maxDecDigits < 0) maxDecDigits = 0;
+
+    const upperInt = Math.pow(10, maxIntDigits) - 1;
+    const intPart = randInt(1, upperInt);
+
+    const decDigits = randInt(0, maxDecDigits);
+    let value = intPart;
+    if (decDigits > 0) {
+      const upperDec = Math.pow(10, decDigits) - 1;
+      const decPart = randInt(1, upperDec);
+      value = parseFloat((intPart + decPart / Math.pow(10, decDigits)).toFixed(decDigits));
     }
     return value;
   }
 
   function generate(level) {
     const category = randomCategory();
-    let ranks, value;
-
-    if (level === 'facile') {
-      ranks = pickRanks(3);
-      value = randomIntegerValue();
-    } else {
-      ranks = pickRanks(null);
-      value = randomDecimalValue();
-    }
-
+    const maxDiff = level === 'facile' ? 3 : null;
+    const ranks = pickRanks(maxDiff);
+    const value = randomValueForRanks(ranks.from, ranks.to, level);
     const answer = computeAnswer(value, ranks.from, ranks.to);
 
     return {
@@ -105,5 +112,5 @@
     return str;
   }
 
-  window.Generator = { generate, nearlyEqual, parseUserValue, formatNumberFR };
+  window.Generator = { generate, computeAnswer, nearlyEqual, parseUserValue, formatNumberFR };
 })();
