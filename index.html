@@ -40,7 +40,7 @@
         <div class="difficulty-choices">
           <button class="diff-card diff-facile" data-diff="facile" type="button">
             <span class="diff-name">Facile</span>
-            <span class="diff-desc">Nombres entiers, unités proches</span>
+            <span class="diff-desc">Unités proches, nombres simples</span>
           </button>
           <button class="diff-card diff-moyen" data-diff="moyen" type="button">
             <span class="diff-name">Moyen</span>
@@ -49,6 +49,10 @@
           <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
             <span class="diff-name">Évaluation</span>
             <span class="diff-desc">5 conversions chronométrées</span>
+          </button>
+          <button class="diff-card diff-custom" data-diff="custom" type="button">
+            <span class="diff-name">Custom</span>
+            <span class="diff-desc">Crée ta propre conversion</span>
           </button>
         </div>
       </div>
@@ -76,6 +80,41 @@
         </div>
 
         <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="screen-custom" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-custom" class="btn-text" type="button">&larr; Retour</button>
+      </div>
+
+      <div class="exercise-card custom-card">
+        <p class="exercise-label">Crée ta conversion :</p>
+
+        <div class="custom-line">
+          <div class="custom-pair">
+            <input id="custom-from-value" class="answer-input custom-value-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Valeur" aria-label="Valeur de départ" />
+            <select id="custom-from-unit" class="custom-select" aria-label="Unité de départ">
+              <option value="" disabled selected>Unité...</option>
+            </select>
+          </div>
+
+          <span class="conv-arrow custom-arrow">&rarr;</span>
+
+          <div class="custom-pair">
+            <input id="custom-to-value" class="answer-input custom-value-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Résultat" aria-label="Ta réponse" disabled />
+            <select id="custom-to-unit" class="custom-select" aria-label="Unité d'arrivée" disabled>
+              <option value="" disabled selected>Unité...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="exercise-actions">
+          <button id="btn-custom-validate" class="btn-primary" type="button" disabled>Valider</button>
+          <button id="btn-custom-solve" class="btn-secondary" type="button" disabled>Résoudre</button>
+        </div>
+
+        <div id="custom-feedback" class="feedback" role="status" aria-live="polite"></div>
       </div>
     </section>
 
