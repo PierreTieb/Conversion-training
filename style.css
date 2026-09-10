@@ -189,7 +189,7 @@ h1 {
 }
 
 .diff-card:active {
-  transform: translateY(calc(var(--arc-y, 0px) + 4px));
+  transform: translateY(4px);
 }
 .diff-facile:active { box-shadow: 0 2px 0 var(--facile-dark), 0 6px 10px rgba(63, 168, 115, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
 .diff-moyen:active { box-shadow: 0 2px 0 var(--moyen-dark), 0 6px 10px rgba(240, 140, 58, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
@@ -435,17 +435,11 @@ h1 {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: flex-start;
-    padding-top: 40px;
+    align-items: stretch;
   }
   .diff-card {
     width: 190px;
-    transform: translateY(var(--arc-y, 0px));
   }
-  .difficulty-choices .diff-card:nth-child(1) { --arc-y: 0px; }
-  .difficulty-choices .diff-card:nth-child(2) { --arc-y: -34px; }
-  .difficulty-choices .diff-card:nth-child(3) { --arc-y: -34px; }
-  .difficulty-choices .diff-card:nth-child(4) { --arc-y: 0px; }
 
   .exercise-card { padding: 44px 32px; }
   .recap-actions { flex-direction: row; justify-content: center; }
