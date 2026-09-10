@@ -6,7 +6,7 @@
 <title>Entraînement aux conversions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -66,12 +66,16 @@
 
       <div class="exercise-card">
         <p class="exercise-label" id="exercise-label">Convertis :</p>
-        <div class="conversion-line">
-          <span id="from-value" class="conv-value">12,4</span>
-          <span id="from-unit" class="conv-unit">km</span>
-          <span class="conv-arrow">&rarr;</span>
-          <input id="answer-input" class="answer-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse" />
-          <span id="to-unit" class="conv-unit">dm</span>
+        <div class="conversion-stack">
+          <div class="conv-row conv-row-from">
+            <span id="from-value" class="conv-value">12,4</span>
+            <span id="from-unit" class="conv-unit">km</span>
+          </div>
+          <span class="conv-arrow-down">&darr;</span>
+          <div class="conv-row conv-row-to">
+            <input id="answer-input" class="answer-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse" />
+            <span id="to-unit" class="conv-unit">dm</span>
+          </div>
         </div>
 
         <div class="exercise-actions">

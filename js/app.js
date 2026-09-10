@@ -115,7 +115,14 @@
   function goHome() {
     clearPendingTimers();
     chronoEl.classList.add('hidden');
+    setTheme('');
     showScreen('home');
+  }
+
+  // Applique une couleur de fond différente selon le mode actif (pur habillage,
+  // n'affecte aucune logique de jeu).
+  function setTheme(name) {
+    document.body.dataset.theme = name;
   }
 
   // ===================================================================
@@ -124,6 +131,7 @@
 
   function startSession(level) {
     currentLevel = level;
+    setTheme(level);
     if (level === 'evaluation') {
       evalStats = { count: 0, correctCount: 0, times: [] };
       chronoEl.classList.remove('hidden');
@@ -351,6 +359,7 @@
   }
 
   function startCustomSession() {
+    setTheme('custom');
     showScreen('custom');
     resetCustomForm();
   }
