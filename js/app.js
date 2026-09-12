@@ -69,7 +69,7 @@
 
   const TUTO_STEP_TEXTS = {
     1: 'Étape 1 : Repérer la <span class="text-tuto-green">colonne de départ</span> et la <span class="text-tuto-red">colonne d\u2019arrivée</span>',
-    2: 'Étape 2 : Repérer le chiffre des unités et le placer dans la <span class="text-tuto-green">colonne de départ</span>',
+    2: 'Étape 2 : Repérer le chiffre des unités et le placer dans la <span class="text-tuto-green">colonne de départ</span><span class="tuto-substep">C\u2019est le chiffre juste avant la virgule</span>',
     3: 'Étape 3 : Placer les autres chiffres, mais sans la virgule',
     4: 'Étape 4 : Compléter avec des zéros jusqu\u2019à la <span class="text-tuto-red">colonne d\u2019arrivée</span>, et y placer mentalement une virgule si besoin'
   };
@@ -87,8 +87,6 @@
 
   let tutoConversion = null;
   let tutoStep = 1;
-  let tutoFromClicked = false;
-  let tutoToClicked = false;
 
   // --- Tableau brouillon (construit une seule fois) ---
   DraftTable.buildTable(draftTableEl);
@@ -556,6 +554,8 @@
     tutoFromValueEl.textContent = Generator.formatNumberFR(tutoConversion.fromValue);
     tutoFromUnitEl.textContent = tutoConversion.fromLabel;
     tutoToUnitEl.textContent = tutoConversion.toLabel;
+    tutoFromUnitEl.classList.remove('circle-mark-green');
+    tutoToUnitEl.classList.remove('circle-mark-red');
 
     tutoAnswerInput.value = '';
     tutoAnswerInput.classList.remove('wrong');
@@ -577,16 +577,17 @@
       btnTutoNext.classList.remove('hidden');
       tutoSuccessEl.classList.add('hidden');
       tutoStepTextEl.innerHTML = TUTO_STEP_TEXTS[step];
-      btnTutoNext.disabled = true;
-      DraftTable.setHeaderClickHandler(null);
 
       if (step === 1) {
-        tutoFromClicked = false;
-        tutoToClicked = false;
-        DraftTable.clearHighlights();
-        DraftTable.highlightColumn(tutoFromCol(), 'from');
-        DraftTable.setHeaderClickHandler(handleTutoHeaderClick);
+        // Rien à faire : la colonne de départ/arrivée et les flèches sont
+        // montrées directement, on peut avancer tout de suite.
+        DraftTable.setColumnArrow(tutoFromCol(), 'from');
+        DraftTable.setColumnArrow(tutoToCol(), 'to');
+        tutoFromUnitEl.classList.add('circle-mark-green');
+        tutoToUnitEl.classList.add('circle-mark-red');
+        btnTutoNext.disabled = false;
       } else {
+        btnTutoNext.disabled = true;
         revalidateTutoStep();
       }
     } else {
@@ -594,39 +595,12 @@
       tutoStepTextEl.innerHTML = '';
       btnTutoNext.classList.add('hidden');
       btnTutoValidate.classList.remove('hidden');
+      btnTutoValidate.disabled = false;
       tutoAnswerInput.classList.remove('hidden');
       tutoAnswerInput.value = '';
       tutoAnswerInput.disabled = false;
       tutoAnswerInput.classList.remove('wrong');
       tutoAnswerInput.focus();
-    }
-  }
-
-  function handleTutoHeaderClick(colIndex) {
-    if (!tutoFromClicked) {
-      if (colIndex === tutoFromCol()) {
-        tutoFromClicked = true;
-        DraftTable.clearHighlights();
-        DraftTable.setColumnArrow(colIndex, 'from');
-        DraftTable.highlightColumn(tutoToCol(), 'to');
-        tutoFeedbackEl.textContent = '';
-        tutoFeedbackEl.className = 'feedback';
-      } else {
-        tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
-        tutoFeedbackEl.className = 'feedback error';
-      }
-    } else if (!tutoToClicked) {
-      if (colIndex === tutoToCol()) {
-        tutoToClicked = true;
-        DraftTable.clearHighlights();
-        DraftTable.setColumnArrow(colIndex, 'to');
-        btnTutoNext.disabled = false;
-        tutoFeedbackEl.textContent = '';
-        tutoFeedbackEl.className = 'feedback';
-      } else {
-        tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
-        tutoFeedbackEl.className = 'feedback error';
-      }
     }
   }
 
@@ -667,8 +641,25 @@
       }
     });
 
-    btnTutoNext.disabled = !allCorrect;
-    if (anyWrongNonEmpty) {
+    // Étape 3 : aucune autre case du tableau ne doit être remplie que celles
+    // nécessaires à cette conversion.
+    let hasExtraDigit = false;
+    if (tutoStep === 3) {
+      for (let c = 0; c < 9; c++) {
+        if (requiredMap[c] !== undefined) continue;
+        if (DraftTable.getCellValue(c) !== '') {
+          hasExtraDigit = true;
+          DraftTable.flashCellError(c);
+        }
+      }
+    }
+
+    btnTutoNext.disabled = !allCorrect || hasExtraDigit;
+
+    if (hasExtraDigit) {
+      tutoFeedbackEl.textContent = 'Il ne doit y avoir que les chiffres nécessaires à cette conversion.';
+      tutoFeedbackEl.className = 'feedback error';
+    } else if (anyWrongNonEmpty) {
       tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
       tutoFeedbackEl.className = 'feedback error';
     } else {

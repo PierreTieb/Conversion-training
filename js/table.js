@@ -6,24 +6,19 @@
 // curseur se retire et il faut recliquer). Le tableau peut être vidé à la
 // demande (à chaque nouvelle conversion).
 //
-// Pour le mode Tuto, une fine rangée de flèches au-dessus de l'en-tête peut
-// signaler la colonne de départ (vert) et d'arrivée (rouge), et les cases
-// d'en-tête peuvent être rendues cliquables le temps de l'étape 1.
+// Pour le mode Tuto, une fine rangée de flèches au-dessus de l'en-tête
+// signale la colonne de départ (vert) et d'arrivée (rouge).
 
 (function () {
   const COLUMN_LABELS = ['', 'k_', 'h_', 'da_', '_', 'd_', 'c_', 'm_', ''];
 
-  let headerCells = [];
   let inputCells = [];
   let arrowCells = [];
-  let headerClickHandler = null;
 
   function buildTable(container) {
     container.innerHTML = '';
-    headerCells = [];
     inputCells = [];
     arrowCells = [];
-    headerClickHandler = null;
 
     // Rangée de flèches (mode Tuto), vide et discrète le reste du temps
     const arrowRow = document.createElement('div');
@@ -38,15 +33,11 @@
 
     const headerRow = document.createElement('div');
     headerRow.className = 'draft-row draft-header';
-    COLUMN_LABELS.forEach((label, idx) => {
+    COLUMN_LABELS.forEach((label) => {
       const cell = document.createElement('div');
       cell.className = 'draft-cell draft-head-cell';
       cell.textContent = label;
-      cell.addEventListener('click', () => {
-        if (headerClickHandler) headerClickHandler(idx);
-      });
       headerRow.appendChild(cell);
-      headerCells.push(cell);
     });
     container.appendChild(headerRow);
 
@@ -99,35 +90,16 @@
   }
 
   // Vide toutes les cases du tableau sans le reconstruire (les écouteurs
-  // restent en place). Efface aussi les marques du mode Tuto.
+  // restent en place). Efface aussi les flèches du mode Tuto.
   function resetTable(container) {
     const inputs = container.querySelectorAll('.draft-input');
     inputs.forEach((input) => {
       input.value = '';
     });
-    clearHighlights();
     clearArrows();
   }
 
   // --- API dédiée au mode Tuto ---
-
-  // Active/désactive le clic sur les en-têtes de colonnes (étape 1 du Tuto).
-  // handler(colIndex) est appelé à chaque clic ; passer null pour désactiver.
-  function setHeaderClickHandler(handler) {
-    headerClickHandler = handler;
-  }
-
-  function highlightColumn(colIndex, type) {
-    const cell = headerCells[colIndex];
-    if (!cell) return;
-    cell.classList.add(type === 'to' ? 'col-highlight-red' : 'col-highlight-green');
-  }
-
-  function clearHighlights() {
-    headerCells.forEach((cell) => {
-      cell.classList.remove('col-highlight-green', 'col-highlight-red');
-    });
-  }
 
   function setColumnArrow(colIndex, type) {
     const cell = arrowCells[colIndex];
@@ -174,9 +146,6 @@
   window.DraftTable = {
     buildTable,
     resetTable,
-    setHeaderClickHandler,
-    highlightColumn,
-    clearHighlights,
     setColumnArrow,
     clearArrows,
     getCellValue,

@@ -86,12 +86,7 @@ body {
   z-index: 0;
   pointer-events: none;
   transition: background 0.4s ease;
-  background:
-    radial-gradient(circle at 12% 8%, rgba(111, 207, 151, 0.20), transparent 42%),
-    radial-gradient(circle at 90% 18%, rgba(179, 137, 217, 0.18), transparent 40%),
-    radial-gradient(circle at 20% 92%, rgba(255, 178, 91, 0.18), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(111, 195, 228, 0.18), transparent 42%),
-    linear-gradient(180deg, #F3FBF8 0%, #F5F3FE 50%, #FFF6EE 100%);
+  background: linear-gradient(180deg, #F3FBF8 0%, #F5F3FE 50%, #FFF6EE 100%);
 }
 
 body[data-theme="tuto"] .bg-science {
@@ -115,20 +110,6 @@ body[data-theme="facile"] { --theme-accent: var(--facile-mid); }
 body[data-theme="moyen"] { --theme-accent: var(--moyen-mid); }
 body[data-theme="evaluation"] { --theme-accent: var(--evaluation-mid); }
 body[data-theme="custom"] { --theme-accent: var(--custom-mid); }
-
-.bg-science svg { width: 100%; height: 100%; opacity: 0.4; }
-.bg-science .orbit { fill: none; stroke: rgba(79, 168, 115, 0.3); stroke-width: 1.2; }
-.bg-science .orbit.small { stroke: rgba(146, 104, 190, 0.35); }
-.bg-science .atom-dot { fill: rgba(79, 168, 115, 0.45); }
-.bg-science .molecule { fill: rgba(255, 178, 91, 0.28); stroke: rgba(240, 140, 58, 0.35); stroke-width: 1; }
-.bg-science .bond { stroke: rgba(240, 140, 58, 0.3); stroke-width: 2; }
-.bg-science .flask { fill: rgba(111, 195, 228, 0.16); stroke: rgba(69, 166, 204, 0.35); stroke-width: 1.5; }
-.bg-science .atom-orbit-ring { fill: none; stroke: rgba(255, 178, 91, 0.32); stroke-width: 1.2; }
-.bg-science .beaker { fill: rgba(111, 195, 228, 0.14); stroke: rgba(69, 166, 204, 0.34); stroke-width: 1.5; }
-.bg-science .tube { fill: rgba(111, 207, 151, 0.16); stroke: rgba(63, 168, 115, 0.32); stroke-width: 1.3; }
-.bg-science .planet { fill: rgba(179, 137, 217, 0.18); stroke: rgba(146, 104, 190, 0.32); stroke-width: 1.3; }
-.bg-science .planet-ring { fill: none; stroke: rgba(146, 104, 190, 0.38); stroke-width: 2; }
-.bg-science .math-symbol { fill: rgba(46, 58, 70, 0.16); font-family: 'Space Mono', monospace; font-weight: 700; }
 
 /* ===== Layout général (mobile d'abord) ===== */
 #app {
@@ -409,6 +390,24 @@ h1 {
 }
 .text-tuto-green { color: var(--tuto-text-green); font-weight: 800; }
 .text-tuto-red { color: var(--tuto-text-red); font-weight: 800; }
+.tuto-substep {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.circle-target.circle-mark-green {
+  border: 2px solid var(--tuto-text-green);
+  border-radius: 999px;
+  padding: 2px 12px;
+}
+.circle-target.circle-mark-red {
+  border: 2px solid var(--tuto-text-red);
+  border-radius: 999px;
+  padding: 2px 12px;
+}
 
 .tuto-success { margin-top: 8px; }
 .tuto-success-message {
@@ -429,7 +428,7 @@ h1 {
 }
 .shake-clear { animation: shakeFade 0.5s ease; }
 
-/* Rangée de flèches + surlignage des colonnes (Tuto, étape 1) */
+/* Rangée de flèches au-dessus de l'en-tête (Tuto) */
 .draft-arrow-row { min-height: 18px; }
 .draft-arrow-cell {
   display: flex;
@@ -441,9 +440,6 @@ h1 {
 }
 .arrow-green { color: var(--tuto-text-green); }
 .arrow-red { color: var(--tuto-text-red); }
-
-.col-highlight-green { box-shadow: inset 0 0 0 3px var(--tuto-text-green); border-radius: 4px; cursor: pointer; }
-.col-highlight-red { box-shadow: inset 0 0 0 3px var(--tuto-text-red); border-radius: 4px; cursor: pointer; }
 
 /* ===== Récapitulatif (Évaluation) ===== */
 .recap-card {
