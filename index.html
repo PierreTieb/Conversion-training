@@ -13,21 +13,65 @@
 
   <div class="bg-science" aria-hidden="true">
     <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+      <!-- Orbites + noyau (haut gauche) -->
       <circle class="orbit" cx="180" cy="140" r="90" />
       <circle class="orbit" cx="180" cy="140" r="140" />
       <circle class="atom-dot" cx="270" cy="140" r="6" />
       <circle class="atom-dot" cx="90" cy="140" r="6" />
+
+      <!-- Molécule (bas droite) -->
       <circle class="molecule" cx="980" cy="620" r="10" />
       <circle class="molecule" cx="1040" cy="660" r="16" />
       <circle class="molecule" cx="930" cy="670" r="7" />
       <line class="bond" x1="980" y1="620" x2="1040" y2="660" />
       <line class="bond" x1="980" y1="620" x2="930" y2="670" />
+
+      <!-- Petite orbite (haut droite) -->
       <circle class="orbit small" cx="1080" cy="120" r="60" />
       <circle class="atom-dot" cx="1140" cy="120" r="5" />
+
+      <!-- Erlenmeyer (haut centre) -->
       <path class="flask" d="M560 40 v60 l-40 90 a20 20 0 0 0 18 30 h100 a20 20 0 0 0 18 -30 l-40 -90 v-60 z" />
+
+      <!-- Molécule (bas gauche) -->
       <circle class="molecule" cx="140" cy="620" r="8" />
       <circle class="molecule" cx="200" cy="600" r="12" />
       <line class="bond" x1="140" y1="620" x2="200" y2="600" />
+
+      <!-- Atome stylisé (centre droite) -->
+      <g class="atom-group" transform="translate(920,320)">
+        <ellipse class="atom-orbit-ring" cx="0" cy="0" rx="46" ry="18" />
+        <ellipse class="atom-orbit-ring" cx="0" cy="0" rx="46" ry="18" transform="rotate(60)" />
+        <ellipse class="atom-orbit-ring" cx="0" cy="0" rx="46" ry="18" transform="rotate(120)" />
+        <circle class="atom-dot" cx="0" cy="0" r="6" />
+        <circle class="atom-dot" cx="44" cy="-4" r="3.5" />
+        <circle class="atom-dot" cx="-20" cy="40" r="3.5" />
+      </g>
+
+      <!-- Bécher gradué (bas centre-gauche) -->
+      <g class="beaker-group" transform="translate(330,700)">
+        <path class="beaker" d="M-22 -46 h44 l-4 10 v40 a4 4 0 0 1 -4 4 h-28 a4 4 0 0 1 -4 -4 v-40 z" />
+        <line class="beaker" x1="-18" y1="-14" x2="14" y2="-14" />
+        <line class="beaker" x1="-18" y1="-2" x2="14" y2="-2" />
+      </g>
+
+      <!-- Tubes à essai (droite) -->
+      <g class="tube-group" transform="translate(1080,420)">
+        <rect class="tube" x="-24" y="-40" width="14" height="60" rx="7" transform="rotate(-8)" />
+        <rect class="tube" x="0" y="-46" width="14" height="66" rx="7" transform="rotate(6)" />
+      </g>
+
+      <!-- Planète à anneau (bas droite, discrète) -->
+      <g class="planet-group" transform="translate(1130,700) rotate(-18)">
+        <circle class="planet" cx="0" cy="0" r="17" />
+        <ellipse class="planet-ring" cx="0" cy="0" rx="34" ry="9" />
+      </g>
+
+      <!-- Symboles mathématiques épars -->
+      <text class="math-symbol" x="470" y="230" font-size="34">π</text>
+      <text class="math-symbol" x="760" y="700" font-size="30">√</text>
+      <text class="math-symbol" x="70" y="420" font-size="32">Σ</text>
+      <text class="math-symbol" x="640" y="480" font-size="26">×</text>
     </svg>
   </div>
 
@@ -36,20 +80,36 @@
     <section id="screen-home" class="screen active">
       <div class="home-inner">
         <h1>Entraînement aux conversions</h1>
-        <p class="subtitle">Choisis ton niveau pour commencer</p>
-        <div class="difficulty-choices">
-          <button class="diff-card diff-facile" data-diff="facile" type="button">
-            <span class="diff-name">Facile</span>
-            <span class="diff-desc">Unités proches, nombres simples</span>
+        <p class="subtitle">Choisis ton mode pour commencer</p>
+
+        <div class="mode-group mode-group-tuto">
+          <p class="mode-caption">Pour découvrir la méthode de conversion</p>
+          <button class="diff-card diff-tuto" data-diff="tuto" type="button">
+            <span class="diff-name">Tuto</span>
+            <span class="diff-desc">Un exemple expliqué pas à pas</span>
           </button>
-          <button class="diff-card diff-moyen" data-diff="moyen" type="button">
-            <span class="diff-name">Moyen</span>
-            <span class="diff-desc">Toutes les conversions, avec décimales</span>
-          </button>
-          <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
-            <span class="diff-name">Évaluation</span>
-            <span class="diff-desc">5 conversions chronométrées</span>
-          </button>
+        </div>
+
+        <div class="mode-group mode-group-levels">
+          <p class="mode-caption">Pour s'exercer à différents niveaux</p>
+          <div class="levels-row">
+            <button class="diff-card diff-facile" data-diff="facile" type="button">
+              <span class="diff-name">Niveau 1</span>
+              <span class="diff-desc">Unités proches, nombres simples</span>
+            </button>
+            <button class="diff-card diff-moyen" data-diff="moyen" type="button">
+              <span class="diff-name">Niveau 2</span>
+              <span class="diff-desc">Toutes les conversions, avec décimales</span>
+            </button>
+            <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
+              <span class="diff-name">Évaluation</span>
+              <span class="diff-desc">5 conversions chronométrées</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mode-group mode-group-custom">
+          <p class="mode-caption">Pour créer et résoudre ses propres conversions</p>
           <button class="diff-card diff-custom" data-diff="custom" type="button">
             <span class="diff-name">Custom</span>
             <span class="diff-desc">Crée ta propre conversion</span>
@@ -62,6 +122,7 @@
       <div class="exercise-topbar">
         <button id="btn-back" class="btn-text" type="button">&larr; Retour</button>
         <div id="chrono" class="chrono hidden">⏱ <span id="chrono-value">0.0 s</span></div>
+        <div id="score-display" class="chrono hidden">Score : <span id="score-value">0/0</span></div>
       </div>
 
       <div class="exercise-card">
@@ -79,6 +140,7 @@
         </div>
 
         <div class="exercise-actions">
+          <button id="btn-hint" class="btn-secondary hidden" type="button">Indice</button>
           <button id="btn-validate" class="btn-primary" type="button">Valider</button>
           <button id="btn-next" class="btn-secondary hidden" type="button">Conversion suivante</button>
         </div>
@@ -119,6 +181,44 @@
         </div>
 
         <div id="custom-feedback" class="feedback" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="screen-tuto" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-tuto" class="btn-text" type="button">&larr; Retour</button>
+      </div>
+
+      <div class="exercise-card tuto-card">
+        <div class="conversion-stack">
+          <div class="conv-row conv-row-from">
+            <span id="tuto-from-value" class="conv-value">12,4</span>
+            <span id="tuto-from-unit" class="conv-unit">mm</span>
+          </div>
+          <span class="conv-arrow-down">&darr;</span>
+          <div class="conv-row conv-row-to">
+            <input id="tuto-answer-input" class="answer-input hidden" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse finale" />
+            <span id="tuto-to-unit" class="conv-unit">m</span>
+          </div>
+        </div>
+
+        <div id="tuto-step-text" class="tuto-step"></div>
+
+        <div class="exercise-actions">
+          <button id="btn-tuto-prev" class="btn-secondary hidden" type="button">Précédent</button>
+          <button id="btn-tuto-next" class="btn-primary" type="button" disabled>Suivant</button>
+          <button id="btn-tuto-validate" class="btn-primary hidden" type="button">Valider</button>
+        </div>
+
+        <div id="tuto-feedback" class="feedback" role="status" aria-live="polite"></div>
+
+        <div id="tuto-success" class="tuto-success hidden">
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <div class="recap-actions">
+            <button id="btn-tuto-retry" class="btn-primary" type="button">Réessayer</button>
+            <button id="btn-tuto-home" class="btn-secondary" type="button">Modes de jeu</button>
+          </div>
+        </div>
       </div>
     </section>
 

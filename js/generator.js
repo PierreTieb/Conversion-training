@@ -58,6 +58,9 @@
 
     let maxDecDigits = Math.min(3, 7 - Math.max(fromRank, toRank));
     if (maxDecDigits < 0) maxDecDigits = 0;
+    if (level === 'facile') {
+      maxDecDigits = 0; // le mode facile ne génère que des nombres entiers
+    }
 
     const upperInt = Math.pow(10, maxIntDigits) - 1;
     const intPart = randInt(1, upperInt);
@@ -90,6 +93,31 @@
     };
   }
 
+  // Exemple pour le mode Tuto : toujours dans la famille des mètres, un
+  // nombre < 100 avec exactement 1 décimale, converti vers une unité 3
+  // rangs plus grande (facteur 1000) : mm->m, cm->dam, dm->hm, m->km.
+  function generateTuto() {
+    const category = Units.categoryByKey('distance');
+    const fromRank = randInt(3, 6);
+    const toRank = fromRank - 3;
+
+    const intPart = randInt(1, 99);
+    const decDigit = randInt(1, 9);
+    const value = parseFloat((intPart + decDigit / 10).toFixed(1));
+
+    const answer = computeAnswer(value, fromRank, toRank);
+
+    return {
+      category: 'distance',
+      fromRank,
+      toRank,
+      fromValue: value,
+      fromLabel: Units.unitLabel(category, fromRank),
+      toLabel: Units.unitLabel(category, toRank),
+      answer
+    };
+  }
+
   function nearlyEqual(a, b) {
     const diff = Math.abs(a - b);
     return diff <= Math.max(1e-6, Math.abs(b) * 1e-6);
@@ -112,5 +140,5 @@
     return str;
   }
 
-  window.Generator = { generate, computeAnswer, nearlyEqual, parseUserValue, formatNumberFR };
+  window.Generator = { generate, generateTuto, computeAnswer, nearlyEqual, parseUserValue, formatNumberFR };
 })();

@@ -14,6 +14,11 @@
 
   /* Couleurs par mode : light (dégradé haut), mid (dégradé bas / fond clair),
      dark (ombre "relief"), text (texte du bouton) */
+  --tuto-light: #FFF3B0;
+  --tuto-mid: #FFD93D;
+  --tuto-dark: #E8B923;
+  --tuto-text: #6B4E00;
+
   --facile-light: #C9F3DA;
   --facile-mid: #6FCF97;
   --facile-dark: #3FA873;
@@ -33,6 +38,10 @@
   --custom-mid: #6FC3E4;
   --custom-dark: #45A6CC;
   --custom-text: #0B4E66;
+
+  /* Couleurs dédiées au texte des instructions du Tuto (bon contraste sur blanc) */
+  --tuto-text-green: #2E9E5B;
+  --tuto-text-red: #D9463B;
 
   --theme-accent: var(--facile-mid);
 
@@ -85,6 +94,9 @@ body {
     linear-gradient(180deg, #F3FBF8 0%, #F5F3FE 50%, #FFF6EE 100%);
 }
 
+body[data-theme="tuto"] .bg-science {
+  background: linear-gradient(180deg, #FFFBEA 0%, #FFF3C4 55%, #FFE9A8 100%);
+}
 body[data-theme="facile"] .bg-science {
   background: linear-gradient(180deg, #EAFBF1 0%, #DCF5E6 55%, #CDEFDC 100%);
 }
@@ -98,6 +110,7 @@ body[data-theme="custom"] .bg-science {
   background: linear-gradient(180deg, #EAF8FE 0%, #D6EFFA 55%, #C2E7F6 100%);
 }
 
+body[data-theme="tuto"] { --theme-accent: var(--tuto-dark); }
 body[data-theme="facile"] { --theme-accent: var(--facile-mid); }
 body[data-theme="moyen"] { --theme-accent: var(--moyen-mid); }
 body[data-theme="evaluation"] { --theme-accent: var(--evaluation-mid); }
@@ -110,6 +123,12 @@ body[data-theme="custom"] { --theme-accent: var(--custom-mid); }
 .bg-science .molecule { fill: rgba(255, 178, 91, 0.28); stroke: rgba(240, 140, 58, 0.35); stroke-width: 1; }
 .bg-science .bond { stroke: rgba(240, 140, 58, 0.3); stroke-width: 2; }
 .bg-science .flask { fill: rgba(111, 195, 228, 0.16); stroke: rgba(69, 166, 204, 0.35); stroke-width: 1.5; }
+.bg-science .atom-orbit-ring { fill: none; stroke: rgba(255, 178, 91, 0.32); stroke-width: 1.2; }
+.bg-science .beaker { fill: rgba(111, 195, 228, 0.14); stroke: rgba(69, 166, 204, 0.34); stroke-width: 1.5; }
+.bg-science .tube { fill: rgba(111, 207, 151, 0.16); stroke: rgba(63, 168, 115, 0.32); stroke-width: 1.3; }
+.bg-science .planet { fill: rgba(179, 137, 217, 0.18); stroke: rgba(146, 104, 190, 0.32); stroke-width: 1.3; }
+.bg-science .planet-ring { fill: none; stroke: rgba(146, 104, 190, 0.38); stroke-width: 2; }
+.bg-science .math-symbol { fill: rgba(46, 58, 70, 0.16); font-family: 'Space Mono', monospace; font-weight: 700; }
 
 /* ===== Layout général (mobile d'abord) ===== */
 #app {
@@ -127,7 +146,13 @@ body[data-theme="custom"] { --theme-accent: var(--custom-mid); }
 .screen.active { display: block; }
 
 /* ===== Accueil ===== */
-.home-inner { text-align: center; padding-top: 4vh; }
+.home-inner {
+  text-align: center;
+  padding-top: 4vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
 
 h1 {
   font-family: var(--font-display);
@@ -137,9 +162,19 @@ h1 {
   color: var(--ink);
 }
 
-.subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0 0 34px; font-weight: 700; }
+.subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0 0 30px; font-weight: 700; }
 
-.difficulty-choices {
+.mode-group + .mode-group { margin-top: 38px; }
+
+.mode-caption {
+  text-align: left;
+  color: #000000;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+
+.levels-row {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -167,6 +202,11 @@ h1 {
 .diff-desc { font-size: 0.85rem; opacity: 0.85; line-height: 1.3; font-weight: 700; }
 
 /* Boutons "relief" colorés, un dégradé par mode */
+.diff-tuto {
+  background: linear-gradient(160deg, var(--tuto-light), var(--tuto-mid));
+  color: var(--tuto-text);
+  box-shadow: 0 6px 0 var(--tuto-dark), 0 12px 20px rgba(232, 185, 35, 0.32), inset 0 2px 0 rgba(255,255,255,0.6);
+}
 .diff-facile {
   background: linear-gradient(160deg, var(--facile-light), var(--facile-mid));
   color: var(--facile-text);
@@ -191,6 +231,7 @@ h1 {
 .diff-card:active {
   transform: translateY(4px);
 }
+.diff-tuto:active { box-shadow: 0 2px 0 var(--tuto-dark), 0 6px 10px rgba(232, 185, 35, 0.28), inset 0 2px 0 rgba(255,255,255,0.55); }
 .diff-facile:active { box-shadow: 0 2px 0 var(--facile-dark), 0 6px 10px rgba(63, 168, 115, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
 .diff-moyen:active { box-shadow: 0 2px 0 var(--moyen-dark), 0 6px 10px rgba(240, 140, 58, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
 .diff-evaluation:active { box-shadow: 0 2px 0 var(--evaluation-dark), 0 6px 10px rgba(146, 104, 190, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
@@ -245,6 +286,7 @@ h1 {
   align-items: center;
   gap: 10px;
   font-family: var(--font-mono);
+  transition: transform 0.1s ease;
 }
 
 .conv-row {
@@ -330,6 +372,12 @@ h1 {
 }
 
 .custom-value-input { width: 100%; max-width: 140px; }
+.custom-value-input::placeholder {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
 
 .custom-select {
   font-family: var(--font-body);
@@ -348,6 +396,54 @@ h1 {
 .custom-select:disabled { opacity: 0.55; }
 
 .custom-arrow { transform: rotate(90deg); color: var(--ink-faint); }
+
+/* ===== Mode Tuto ===== */
+.tuto-card { text-align: center; }
+
+.tuto-step {
+  margin: 18px 0 6px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.text-tuto-green { color: var(--tuto-text-green); font-weight: 800; }
+.text-tuto-red { color: var(--tuto-text-red); font-weight: 800; }
+
+.tuto-success { margin-top: 8px; }
+.tuto-success-message {
+  font-weight: 800;
+  color: var(--success);
+  font-size: 1.02rem;
+  line-height: 1.5;
+  margin: 8px 0 4px;
+}
+
+@keyframes shakeFade {
+  0% { transform: translateX(0); opacity: 1; }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); opacity: 0.25; }
+  80% { transform: translateX(5px); opacity: 0.25; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.shake-clear { animation: shakeFade 0.5s ease; }
+
+/* Rangée de flèches + surlignage des colonnes (Tuto, étape 1) */
+.draft-arrow-row { min-height: 18px; }
+.draft-arrow-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+}
+.arrow-green { color: var(--tuto-text-green); }
+.arrow-red { color: var(--tuto-text-red); }
+
+.col-highlight-green { box-shadow: inset 0 0 0 3px var(--tuto-text-green); border-radius: 4px; cursor: pointer; }
+.col-highlight-red { box-shadow: inset 0 0 0 3px var(--tuto-text-red); border-radius: 4px; cursor: pointer; }
 
 /* ===== Récapitulatif (Évaluation) ===== */
 .recap-card {
@@ -417,6 +513,7 @@ h1 {
   color: var(--ink);
   caret-color: var(--theme-accent);
 }
+.draft-input.wrong { background: var(--error-bg); }
 
 /* ===== Utilitaires ===== */
 .hidden { display: none !important; }
@@ -429,17 +526,16 @@ h1 {
   display: none;
 }
 
-/* ===== Écrans plus larges (tablette / desktop) : boutons en arc de cercle ===== */
+/* ===== Écrans plus larges (tablette / desktop) ===== */
 @media (min-width: 640px) {
-  .difficulty-choices {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: stretch;
-  }
-  .diff-card {
-    width: 190px;
-  }
+  #screen-home { max-width: 720px; }
+
+  .diff-card { padding: 26px 26px; min-height: 108px; }
+  .diff-name { font-size: 1.3rem; }
+  .diff-desc { font-size: 0.9rem; }
+
+  .levels-row { flex-direction: row; gap: 18px; }
+  .levels-row .diff-card { flex: 1; }
 
   .exercise-card { padding: 44px 32px; }
   .recap-actions { flex-direction: row; justify-content: center; }

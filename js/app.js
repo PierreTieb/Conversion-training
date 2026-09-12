@@ -1,7 +1,7 @@
 // app.js
 // Contrôleur principal : navigation entre écrans, logique d'un exercice
-// généré (facile / moyen / évaluation), logique du mode Custom, chronomètre
-// et score du mode Évaluation.
+// généré (facile / moyen / évaluation), logique du mode Custom, logique du
+// mode Tuto guidé, chronomètre et score.
 
 (function () {
   // --- Références DOM communes ---
@@ -9,19 +9,24 @@
     home: document.getElementById('screen-home'),
     exercise: document.getElementById('screen-exercise'),
     custom: document.getElementById('screen-custom'),
+    tuto: document.getElementById('screen-tuto'),
     recap: document.getElementById('screen-recap')
   };
 
   const diffCards = document.querySelectorAll('.diff-card');
   const btnBack = document.getElementById('btn-back');
   const btnBackCustom = document.getElementById('btn-back-custom');
+  const btnBackTuto = document.getElementById('btn-back-tuto');
   const chronoEl = document.getElementById('chrono');
   const chronoValueEl = document.getElementById('chrono-value');
+  const scoreDisplayEl = document.getElementById('score-display');
+  const scoreValueEl = document.getElementById('score-value');
 
   const fromValueEl = document.getElementById('from-value');
   const fromUnitEl = document.getElementById('from-unit');
   const toUnitEl = document.getElementById('to-unit');
   const answerInput = document.getElementById('answer-input');
+  const btnHint = document.getElementById('btn-hint');
   const btnValidate = document.getElementById('btn-validate');
   const btnNext = document.getElementById('btn-next');
   const feedbackEl = document.getElementById('feedback');
@@ -47,6 +52,28 @@
   const btnCustomSolve = document.getElementById('btn-custom-solve');
   const customFeedbackEl = document.getElementById('custom-feedback');
 
+  // --- Références DOM du mode Tuto ---
+  const tutoFromValueEl = document.getElementById('tuto-from-value');
+  const tutoFromUnitEl = document.getElementById('tuto-from-unit');
+  const tutoToUnitEl = document.getElementById('tuto-to-unit');
+  const tutoAnswerInput = document.getElementById('tuto-answer-input');
+  const tutoStepTextEl = document.getElementById('tuto-step-text');
+  const btnTutoPrev = document.getElementById('btn-tuto-prev');
+  const btnTutoNext = document.getElementById('btn-tuto-next');
+  const btnTutoValidate = document.getElementById('btn-tuto-validate');
+  const tutoFeedbackEl = document.getElementById('tuto-feedback');
+  const tutoSuccessEl = document.getElementById('tuto-success');
+  const btnTutoRetry = document.getElementById('btn-tuto-retry');
+  const btnTutoHome = document.getElementById('btn-tuto-home');
+  const tutoStack = document.querySelector('#screen-tuto .conversion-stack');
+
+  const TUTO_STEP_TEXTS = {
+    1: 'Étape 1 : Repérer la <span class="text-tuto-green">colonne de départ</span> et la <span class="text-tuto-red">colonne d\u2019arrivée</span>',
+    2: 'Étape 2 : Repérer le chiffre des unités et le placer dans la <span class="text-tuto-green">colonne de départ</span>',
+    3: 'Étape 3 : Placer les autres chiffres, mais sans la virgule',
+    4: 'Étape 4 : Compléter avec des zéros jusqu\u2019à la <span class="text-tuto-red">colonne d\u2019arrivée</span>, et y placer mentalement une virgule si besoin'
+  };
+
   // --- État ---
   let currentLevel = 'facile';
   let currentConversion = null;
@@ -55,7 +82,13 @@
   let chronoIntervalId = null;
   let questionStart = 0;
   let evalStats = { count: 0, correctCount: 0, times: [] };
+  let sessionScore = { correct: 0, total: 0 };
   let customRevealed = false;
+
+  let tutoConversion = null;
+  let tutoStep = 1;
+  let tutoFromClicked = false;
+  let tutoToClicked = false;
 
   // --- Tableau brouillon (construit une seule fois) ---
   DraftTable.buildTable(draftTableEl);
@@ -92,13 +125,15 @@
   attachNumericSanitizer(answerInput);
   attachNumericSanitizer(customFromValueInput);
   attachNumericSanitizer(customToValueInput);
+  attachNumericSanitizer(tutoAnswerInput);
 
   // --- Navigation entre écrans ---
   function showScreen(name) {
     Object.keys(screens).forEach((key) => {
       screens[key].classList.toggle('active', key === name);
     });
-    draftWrap.classList.toggle('hidden', name !== 'exercise' && name !== 'custom');
+    const showTable = name === 'exercise' || name === 'custom' || name === 'tuto';
+    draftWrap.classList.toggle('hidden', !showTable);
   }
 
   function clearPendingTimers() {
@@ -115,6 +150,7 @@
   function goHome() {
     clearPendingTimers();
     chronoEl.classList.add('hidden');
+    scoreDisplayEl.classList.add('hidden');
     setTheme('');
     showScreen('home');
   }
@@ -129,15 +165,28 @@
   //  Modes générés : Facile / Moyen / Évaluation
   // ===================================================================
 
+  function updateScoreDisplay() {
+    scoreValueEl.textContent = sessionScore.correct + '/' + sessionScore.total;
+  }
+
   function startSession(level) {
     currentLevel = level;
     setTheme(level);
+
     if (level === 'evaluation') {
       evalStats = { count: 0, correctCount: 0, times: [] };
       chronoEl.classList.remove('hidden');
+      scoreDisplayEl.classList.add('hidden');
+    } else if (level === 'facile' || level === 'moyen') {
+      sessionScore = { correct: 0, total: 0 };
+      updateScoreDisplay();
+      chronoEl.classList.add('hidden');
+      scoreDisplayEl.classList.remove('hidden');
     } else {
       chronoEl.classList.add('hidden');
+      scoreDisplayEl.classList.add('hidden');
     }
+
     showScreen('exercise');
     loadNewConversion();
   }
@@ -163,6 +212,9 @@
     btnValidate.classList.remove('hidden');
     btnNext.classList.add('hidden');
 
+    btnHint.classList.toggle('hidden', currentLevel !== 'facile');
+    btnHint.disabled = false;
+
     feedbackEl.textContent = '';
     feedbackEl.className = 'feedback';
 
@@ -176,6 +228,11 @@
   function updateChrono() {
     const elapsed = (performance.now() - questionStart) / 1000;
     chronoValueEl.textContent = elapsed.toFixed(1) + ' s';
+  }
+
+  function onHintClick() {
+    if (!currentConversion) return;
+    DraftTable.fillDigits(currentConversion.fromRank, currentConversion.fromValue);
   }
 
   function validateAnswer() {
@@ -200,6 +257,7 @@
     answerInput.disabled = true;
     btnValidate.disabled = true;
     btnNext.classList.add('hidden');
+    btnHint.disabled = true;
 
     if (currentLevel === 'evaluation') {
       clearInterval(chronoIntervalId);
@@ -208,6 +266,10 @@
       evalStats.times.push(elapsed);
       evalStats.correctCount += 1;
       evalStats.count += 1;
+    } else if (currentLevel === 'facile' || currentLevel === 'moyen') {
+      sessionScore.total += 1;
+      if (!hasFailedOnce) sessionScore.correct += 1;
+      updateScoreDisplay();
     }
 
     advanceTimeoutId = setTimeout(() => {
@@ -236,6 +298,7 @@
 
     btnValidate.disabled = true;
     btnNext.disabled = true;
+    btnHint.disabled = true;
     answerInput.disabled = true;
     answerInput.classList.remove('wrong');
     answerInput.classList.add('revealed');
@@ -250,6 +313,9 @@
       const elapsed = (performance.now() - questionStart) / 1000;
       evalStats.times.push(elapsed);
       evalStats.count += 1;
+    } else if (currentLevel === 'facile' || currentLevel === 'moyen') {
+      sessionScore.total += 1; // ratée puis résolue (ou passée) = comptée comme une erreur
+      updateScoreDisplay();
     }
 
     advanceTimeoutId = setTimeout(() => {
@@ -455,12 +521,212 @@
     }
   }
 
+  // ===================================================================
+  //  Mode Tuto
+  // ===================================================================
+
+  function tutoFromCol() {
+    return tutoConversion.fromRank + 1;
+  }
+
+  function tutoToCol() {
+    return tutoConversion.toRank + 1;
+  }
+
+  function tutoDigitsInfo() {
+    const intPart = Math.trunc(tutoConversion.fromValue);
+    const intStr = String(intPart);
+    const unitsDigit = intStr[intStr.length - 1];
+    const tensDigit = intStr.length > 1 ? intStr[intStr.length - 2] : null;
+    const decimalDigit = tutoConversion.fromValue.toFixed(1).split('.')[1];
+    return { unitsDigit, tensDigit, decimalDigit };
+  }
+
+  function startTutoSession() {
+    setTheme('tuto');
+    showScreen('tuto');
+    newTutoExample();
+  }
+
+  function newTutoExample() {
+    clearPendingTimers();
+    tutoConversion = Generator.generateTuto();
+    DraftTable.resetTable(draftTableEl);
+
+    tutoFromValueEl.textContent = Generator.formatNumberFR(tutoConversion.fromValue);
+    tutoFromUnitEl.textContent = tutoConversion.fromLabel;
+    tutoToUnitEl.textContent = tutoConversion.toLabel;
+
+    tutoAnswerInput.value = '';
+    tutoAnswerInput.classList.remove('wrong');
+    tutoSuccessEl.classList.add('hidden');
+    tutoStack.classList.remove('shake-clear');
+
+    renderTutoStep(1);
+  }
+
+  function renderTutoStep(step) {
+    tutoStep = step;
+    tutoFeedbackEl.textContent = '';
+    tutoFeedbackEl.className = 'feedback';
+    btnTutoPrev.classList.toggle('hidden', step === 1);
+
+    if (step <= 4) {
+      tutoAnswerInput.classList.add('hidden');
+      btnTutoValidate.classList.add('hidden');
+      btnTutoNext.classList.remove('hidden');
+      tutoSuccessEl.classList.add('hidden');
+      tutoStepTextEl.innerHTML = TUTO_STEP_TEXTS[step];
+      btnTutoNext.disabled = true;
+      DraftTable.setHeaderClickHandler(null);
+
+      if (step === 1) {
+        tutoFromClicked = false;
+        tutoToClicked = false;
+        DraftTable.clearHighlights();
+        DraftTable.highlightColumn(tutoFromCol(), 'from');
+        DraftTable.setHeaderClickHandler(handleTutoHeaderClick);
+      } else {
+        revalidateTutoStep();
+      }
+    } else {
+      // Étape 5 : réponse finale
+      tutoStepTextEl.innerHTML = '';
+      btnTutoNext.classList.add('hidden');
+      btnTutoValidate.classList.remove('hidden');
+      tutoAnswerInput.classList.remove('hidden');
+      tutoAnswerInput.value = '';
+      tutoAnswerInput.disabled = false;
+      tutoAnswerInput.classList.remove('wrong');
+      tutoAnswerInput.focus();
+    }
+  }
+
+  function handleTutoHeaderClick(colIndex) {
+    if (!tutoFromClicked) {
+      if (colIndex === tutoFromCol()) {
+        tutoFromClicked = true;
+        DraftTable.clearHighlights();
+        DraftTable.setColumnArrow(colIndex, 'from');
+        DraftTable.highlightColumn(tutoToCol(), 'to');
+        tutoFeedbackEl.textContent = '';
+        tutoFeedbackEl.className = 'feedback';
+      } else {
+        tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        tutoFeedbackEl.className = 'feedback error';
+      }
+    } else if (!tutoToClicked) {
+      if (colIndex === tutoToCol()) {
+        tutoToClicked = true;
+        DraftTable.clearHighlights();
+        DraftTable.setColumnArrow(colIndex, 'to');
+        btnTutoNext.disabled = false;
+        tutoFeedbackEl.textContent = '';
+        tutoFeedbackEl.className = 'feedback';
+      } else {
+        tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        tutoFeedbackEl.className = 'feedback error';
+      }
+    }
+  }
+
+  function revalidateTutoStep() {
+    if (!tutoConversion || tutoStep < 2 || tutoStep > 4) return;
+
+    const info = tutoDigitsInfo();
+    const fromCol = tutoFromCol();
+    const toCol = tutoToCol();
+    const requiredMap = {};
+
+    if (tutoStep === 2) {
+      requiredMap[fromCol] = info.unitsDigit;
+    } else if (tutoStep === 3) {
+      requiredMap[fromCol] = info.unitsDigit;
+      if (info.tensDigit !== null) requiredMap[fromCol - 1] = info.tensDigit;
+      requiredMap[fromCol + 1] = info.decimalDigit;
+    } else if (tutoStep === 4) {
+      const leftmostDigitCol = info.tensDigit !== null ? fromCol - 1 : fromCol;
+      for (let c = toCol; c <= leftmostDigitCol - 1; c++) {
+        requiredMap[c] = '0';
+      }
+    }
+
+    let allCorrect = true;
+    let anyWrongNonEmpty = false;
+
+    Object.keys(requiredMap).forEach((colStr) => {
+      const col = Number(colStr);
+      const expected = requiredMap[colStr];
+      const val = DraftTable.getCellValue(col);
+      if (val === '') {
+        allCorrect = false;
+      } else if (val !== expected) {
+        allCorrect = false;
+        anyWrongNonEmpty = true;
+        DraftTable.flashCellError(col);
+      }
+    });
+
+    btnTutoNext.disabled = !allCorrect;
+    if (anyWrongNonEmpty) {
+      tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
+      tutoFeedbackEl.className = 'feedback error';
+    } else {
+      tutoFeedbackEl.textContent = '';
+      tutoFeedbackEl.className = 'feedback';
+    }
+  }
+
+  function onTutoNext() {
+    if (tutoStep < 4) {
+      renderTutoStep(tutoStep + 1);
+    } else if (tutoStep === 4) {
+      renderTutoStep(5);
+    }
+  }
+
+  function onTutoPrev() {
+    if (tutoStep > 1) {
+      renderTutoStep(tutoStep - 1);
+    }
+  }
+
+  function validateTutoAnswer() {
+    const parsed = Generator.parseUserValue(tutoAnswerInput.value);
+
+    if (isNaN(parsed)) {
+      tutoFeedbackEl.textContent = 'Entre un nombre valide (chiffres, virgule ou point).';
+      tutoFeedbackEl.className = 'feedback info';
+      return;
+    }
+
+    if (Generator.nearlyEqual(parsed, tutoConversion.answer)) {
+      tutoAnswerInput.disabled = true;
+      btnTutoValidate.disabled = true;
+      btnTutoPrev.classList.add('hidden');
+      tutoFeedbackEl.textContent = '';
+      tutoFeedbackEl.className = 'feedback';
+      tutoSuccessEl.classList.remove('hidden');
+      safeBurstConfetti();
+    } else {
+      tutoAnswerInput.value = '';
+      tutoStack.classList.remove('shake-clear');
+      void tutoStack.offsetWidth; // force le rejeu de l'animation
+      tutoStack.classList.add('shake-clear');
+      tutoFeedbackEl.textContent = 'Ce n\'est pas encore ça, réessaie.';
+      tutoFeedbackEl.className = 'feedback error';
+      tutoAnswerInput.focus();
+    }
+  }
+
   // --- Écouteurs d'événements : modes générés ---
   diffCards.forEach((card) => {
     card.addEventListener('click', () => {
       const diff = card.dataset.diff;
       if (diff === 'custom') {
         startCustomSession();
+      } else if (diff === 'tuto') {
+        startTutoSession();
       } else {
         startSession(diff);
       }
@@ -469,9 +735,11 @@
 
   btnBack.addEventListener('click', goHome);
   btnBackCustom.addEventListener('click', goHome);
+  btnBackTuto.addEventListener('click', goHome);
   btnHome.addEventListener('click', goHome);
   btnRestart.addEventListener('click', () => startSession('evaluation'));
 
+  btnHint.addEventListener('click', onHintClick);
   btnValidate.addEventListener('click', validateAnswer);
   btnNext.addEventListener('click', revealAndContinue);
 
@@ -495,6 +763,25 @@
     if (e.key === 'Enter' && !btnCustomValidate.disabled) {
       e.preventDefault();
       btnCustomValidate.click();
+    }
+  });
+
+  // --- Écouteurs d'événements : mode Tuto ---
+  btnTutoPrev.addEventListener('click', onTutoPrev);
+  btnTutoNext.addEventListener('click', onTutoNext);
+  btnTutoValidate.addEventListener('click', validateTutoAnswer);
+  btnTutoRetry.addEventListener('click', newTutoExample);
+  btnTutoHome.addEventListener('click', goHome);
+  tutoAnswerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !btnTutoValidate.classList.contains('hidden')) {
+      e.preventDefault();
+      btnTutoValidate.click();
+    }
+  });
+  // Revalidation en direct des étapes 2 à 4 à chaque saisie dans le tableau
+  draftTableEl.addEventListener('input', () => {
+    if (screens.tuto.classList.contains('active')) {
+      revalidateTutoStep();
     }
   });
 
