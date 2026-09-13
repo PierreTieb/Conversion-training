@@ -276,17 +276,20 @@ h1 {
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
+.conv-row-to { flex-wrap: nowrap; }
 
 .conv-value { font-size: clamp(1.5rem, 8vw, 2.1rem); font-weight: 700; color: var(--ink); }
-.conv-unit { font-size: clamp(1.2rem, 6vw, 1.6rem); color: var(--theme-accent); font-weight: 700; }
+.conv-unit { font-size: clamp(1.2rem, 6vw, 1.6rem); color: var(--theme-accent); font-weight: 700; flex-shrink: 0; white-space: nowrap; }
 .conv-arrow-down { font-size: 1.6rem; color: var(--ink-faint); line-height: 1; }
 
 .answer-input {
   font-family: var(--font-mono);
   font-size: clamp(1.35rem, 7vw, 1.8rem);
-  width: 9ch;
-  max-width: 60vw;
+  flex: 0 1 16ch;
+  min-width: 8ch;
+  max-width: 90vw;
   text-align: center;
   background: var(--bg-card-soft);
   color: var(--ink);
@@ -353,7 +356,7 @@ h1 {
   flex-wrap: wrap;
 }
 
-.custom-value-input { width: 100%; max-width: 180px; }
+.custom-value-input { flex: 0 1 auto; width: 100%; max-width: 270px; }
 .custom-value-input::placeholder {
   font-family: var(--font-body);
   font-weight: 700;
