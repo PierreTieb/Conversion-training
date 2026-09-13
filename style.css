@@ -285,7 +285,8 @@ h1 {
 .answer-input {
   font-family: var(--font-mono);
   font-size: clamp(1.35rem, 7vw, 1.8rem);
-  width: 5.5ch;
+  width: 9ch;
+  max-width: 60vw;
   text-align: center;
   background: var(--bg-card-soft);
   color: var(--ink);
@@ -352,7 +353,7 @@ h1 {
   flex-wrap: wrap;
 }
 
-.custom-value-input { width: 100%; max-width: 140px; }
+.custom-value-input { width: 100%; max-width: 180px; }
 .custom-value-input::placeholder {
   font-family: var(--font-body);
   font-weight: 700;
