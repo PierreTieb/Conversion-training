@@ -15,9 +15,31 @@
 
   <main id="app">
 
-    <section id="screen-home" class="screen active">
+    <section id="screen-level-select" class="screen active">
       <div class="home-inner">
         <h1>Entraînement aux conversions</h1>
+        <p class="subtitle">Choisis ton niveau</p>
+
+        <div class="mode-group">
+          <button class="level-card level-4e" data-level="4e" type="button">
+            <span class="diff-name">Je suis en 4e</span>
+            <span class="diff-desc">Conversions basiques : masse, distance, volume</span>
+          </button>
+        </div>
+
+        <div class="mode-group">
+          <button class="level-card level-3e" data-level="3e" type="button">
+            <span class="diff-name">Je suis en 3e ou au-delà</span>
+            <span class="diff-desc">Toutes les conversions : + temps, vitesse, Ampère, Volt</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-home" class="screen">
+      <div class="home-inner">
+        <button id="btn-to-level-select" class="btn-text home-back" type="button">&larr; Changer de niveau</button>
+        <h1>Conversions basiques</h1>
         <p class="subtitle">Choisis ton mode pour commencer</p>
 
         <div class="mode-group mode-group-tuto">
@@ -52,6 +74,250 @@
             <span class="diff-name">Custom</span>
             <span class="diff-desc">Crée ta propre conversion</span>
           </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-home-3e" class="screen">
+      <div class="home-inner">
+        <button id="btn-to-level-select-3e" class="btn-text home-back" type="button">&larr; Changer de niveau</button>
+        <h1>Conversions 3e et au-delà</h1>
+        <p class="subtitle">Choisis ton mode</p>
+
+        <div class="mode-group">
+          <p class="mode-caption">Pour apprendre pas à pas</p>
+          <button class="diff-card diff-tuto3e" data-diff="tuto3e" type="button">
+            <span class="diff-name">Tuto</span>
+            <span class="diff-desc">Conversions classiques, temps, vitesse</span>
+          </button>
+        </div>
+
+        <div class="mode-group">
+          <p class="mode-caption">Pour s'entraîner et être évalué</p>
+          <button class="diff-card diff-entrainement3e" data-diff="entrainement3e" type="button">
+            <span class="diff-name">Entraînement</span>
+            <span class="diff-desc">Entraînements et évaluations</span>
+          </button>
+        </div>
+
+        <div class="mode-group">
+          <p class="mode-caption">Pour créer et résoudre ses propres conversions</p>
+          <button class="diff-card diff-custom" data-diff="custom3e" type="button">
+            <span class="diff-name">Custom</span>
+            <span class="diff-desc">Toutes unités, y compris temps et vitesse</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-tuto3e-menu" class="screen">
+      <div class="home-inner">
+        <button id="btn-back-tuto3e-menu" class="btn-text home-back" type="button">&larr; Retour</button>
+        <h1>Mode Tuto</h1>
+        <p class="subtitle">Choisis le tuto à découvrir</p>
+
+        <div class="mode-group">
+          <button class="diff-card diff-tuto3e-classique" data-diff="tuto3e-classique" type="button">
+            <span class="diff-name">Conversions Classiques</span>
+            <span class="diff-desc">Masse, distance, volume (identique au Tuto 4e)</span>
+          </button>
+        </div>
+        <div class="mode-group">
+          <button class="diff-card diff-tuto3e-temps" data-diff="tuto3e-temps" type="button">
+            <span class="diff-name">Conversions de Temps</span>
+            <span class="diff-desc">Année, jour, heure, minute, seconde</span>
+          </button>
+        </div>
+        <div class="mode-group">
+          <button class="diff-card diff-tuto3e-vitesse" data-diff="tuto3e-vitesse" type="button">
+            <span class="diff-name">Conversions de Vitesse</span>
+            <span class="diff-desc">m/s et km/h, la méthode rapide</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-entrainement3e-menu" class="screen">
+      <div class="home-inner">
+        <button id="btn-back-entrainement3e-menu" class="btn-text home-back" type="button">&larr; Retour</button>
+        <h1>Mode Entraînement</h1>
+        <p class="subtitle">Choisis ton entraînement</p>
+
+        <div class="mode-group">
+          <button class="diff-card diff-entrainement3e-classique" data-diff="entrainement3e-classique" type="button">
+            <span class="diff-name">Entraînement classique</span>
+            <span class="diff-desc">Masse, distance, volume, Ampère, Volt</span>
+          </button>
+        </div>
+        <div class="mode-group">
+          <button class="diff-card diff-entrainement3e-tv" data-diff="entrainement3e-tv" type="button">
+            <span class="diff-name">Entraînement temps et vitesse</span>
+            <span class="diff-desc">Conversions de temps et de vitesse mélangées</span>
+          </button>
+        </div>
+        <div class="mode-group">
+          <button class="diff-card diff-eval3e-classique" data-diff="evaluation3e-classique" type="button">
+            <span class="diff-name">Évaluation classique</span>
+            <span class="diff-desc">5 conversions chronométrées, Ampère et Volt inclus</span>
+          </button>
+        </div>
+        <div class="mode-group">
+          <button class="diff-card diff-eval3e-experte" data-diff="evaluation3e-experte" type="button">
+            <span class="diff-name">Évaluation experte</span>
+            <span class="diff-desc">Tout mélangé : classique, temps, vitesse</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-mixed-ready" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-mixed-ready" class="btn-text" type="button">&larr; Retour</button>
+      </div>
+      <div class="exercise-card">
+        <p class="exercise-label">La calculatrice peut être nécessaire dans ce mode</p>
+        <div class="exercise-actions">
+          <button id="btn-mixed-ready" class="btn-primary" type="button">Prêt</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-mixed" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-mixed" class="btn-text" type="button">&larr; Retour</button>
+        <div id="mixed-chrono" class="chrono hidden">⏱ <span id="mixed-chrono-value">0.0 s</span></div>
+        <div id="mixed-score-display" class="chrono hidden">Score : <span id="mixed-score-value">0/0</span></div>
+      </div>
+
+      <div class="exercise-card">
+        <p class="exercise-label">Convertis :</p>
+        <div class="conversion-stack">
+          <div class="conv-row conv-row-from">
+            <span id="mixed-from-value" class="conv-value">12,4</span>
+            <span id="mixed-from-unit" class="conv-unit">km</span>
+          </div>
+          <span class="conv-arrow-down">&darr;</span>
+          <div class="conv-row conv-row-to">
+            <input id="mixed-answer-input" class="answer-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse" />
+            <span id="mixed-to-unit" class="conv-unit">dm</span>
+          </div>
+        </div>
+
+        <div id="mixed-time-diagram" class="time-diagram hidden"></div>
+
+        <div id="mixed-speed-diagram" class="speed-diagram hidden">
+          <span class="td-unit-static">m/s</span>
+          <div class="speed-arrows">
+            <span class="speed-arrow-top">× 3,6 &rarr;</span>
+            <span class="speed-arrow-bottom">&larr; ÷ 3,6</span>
+          </div>
+          <span class="td-unit-static">km/h</span>
+        </div>
+
+        <div class="exercise-actions">
+          <button id="btn-mixed-validate" class="btn-primary" type="button">Valider</button>
+          <button id="btn-mixed-next" class="btn-secondary hidden" type="button">Conversion suivante</button>
+        </div>
+
+        <div id="mixed-feedback" class="feedback" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="screen-tuto-temps" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-tuto-temps" class="btn-text" type="button">&larr; Retour</button>
+      </div>
+
+      <div class="exercise-card tuto-card">
+        <div class="conversion-stack">
+          <div class="conv-row conv-row-from">
+            <span id="tt-from-value" class="conv-value">12</span>
+            <span id="tt-from-unit" class="conv-unit">j</span>
+          </div>
+          <span class="conv-arrow-down">&darr;</span>
+          <div class="conv-row conv-row-to">
+            <input id="tt-answer-input" class="answer-input hidden" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse finale" />
+            <span id="tt-to-unit" class="conv-unit">h</span>
+          </div>
+        </div>
+
+        <div id="tt-step-text" class="tuto-step"></div>
+
+        <div id="tt-diagram" class="time-diagram"></div>
+
+        <div id="tt-keypad" class="tt-keypad hidden">
+          <button class="tt-op-btn" data-op="×" data-factor="365" type="button">× 365</button>
+          <button class="tt-op-btn" data-op="×" data-factor="24" type="button">× 24</button>
+          <button class="tt-op-btn" data-op="×" data-factor="60" type="button">× 60</button>
+          <button class="tt-op-btn" data-op="÷" data-factor="365" type="button">÷ 365</button>
+          <button class="tt-op-btn" data-op="÷" data-factor="24" type="button">÷ 24</button>
+          <button class="tt-op-btn" data-op="÷" data-factor="60" type="button">÷ 60</button>
+        </div>
+        <p id="tt-expression" class="tt-expression hidden"></p>
+        <p id="tt-final-hint" class="tuto-substep hidden">Tape ici la réponse finale</p>
+
+        <div class="exercise-actions">
+          <button id="btn-tt-erase" class="btn-text hidden" type="button">Effacer le dernier calcul</button>
+        </div>
+        <div class="exercise-actions">
+          <button id="btn-tt-prev" class="btn-secondary hidden" type="button">Précédent</button>
+          <button id="btn-tt-next" class="btn-primary" type="button" disabled>Suivant</button>
+          <button id="btn-tt-validate" class="btn-primary hidden" type="button">Valider</button>
+        </div>
+
+        <div id="tt-feedback" class="feedback" role="status" aria-live="polite"></div>
+
+        <div id="tt-success" class="tuto-success hidden">
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <div class="recap-actions">
+            <button id="btn-tt-retry" class="btn-primary" type="button">Réessayer</button>
+            <button id="btn-tt-home" class="btn-secondary" type="button">Modes de jeu</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-tuto-vitesse" class="screen">
+      <div class="exercise-topbar">
+        <button id="btn-back-tuto-vitesse" class="btn-text" type="button">&larr; Retour</button>
+      </div>
+
+      <div class="exercise-card tuto-card">
+        <div class="conversion-stack">
+          <div class="conv-row conv-row-from">
+            <span id="tv-from-value" class="conv-value">12</span>
+            <span id="tv-from-unit" class="conv-unit">m/s</span>
+          </div>
+          <span class="conv-arrow-down">&darr;</span>
+          <div class="conv-row conv-row-to">
+            <input id="tv-answer-input" class="answer-input hidden" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Ta réponse finale" />
+            <span id="tv-to-unit" class="conv-unit">km/h</span>
+          </div>
+        </div>
+
+        <div id="tv-step-text" class="tuto-step"></div>
+
+        <div id="tv-choice" class="exercise-actions hidden">
+          <button id="btn-tv-mult" class="btn-secondary" type="button">× 3,6</button>
+          <button id="btn-tv-div" class="btn-secondary" type="button">÷ 3,6</button>
+        </div>
+        <p id="tv-expression" class="tt-expression hidden"></p>
+        <p id="tv-final-hint" class="tuto-substep hidden">Tape ici la réponse finale</p>
+
+        <div class="exercise-actions">
+          <button id="btn-tv-prev" class="btn-secondary hidden" type="button">Précédent</button>
+          <button id="btn-tv-next" class="btn-primary hidden" type="button">Suivant</button>
+          <button id="btn-tv-validate" class="btn-primary hidden" type="button">Valider</button>
+        </div>
+
+        <div id="tv-feedback" class="feedback" role="status" aria-live="polite"></div>
+
+        <div id="tv-success" class="tuto-success hidden">
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <div class="recap-actions">
+            <button id="btn-tv-retry" class="btn-primary" type="button">Réessayer</button>
+            <button id="btn-tv-home" class="btn-secondary" type="button">Modes de jeu</button>
+          </div>
         </div>
       </div>
     </section>

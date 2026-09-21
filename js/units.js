@@ -11,14 +11,24 @@
   const CATEGORIES = [
     { key: 'masse', base: 'g' },
     { key: 'distance', base: 'm' },
-    { key: 'volume', base: 'L' }
+    { key: 'volume', base: 'L' },
+    { key: 'courant', base: 'A' },
+    { key: 'tension', base: 'V' }
   ];
 
   const CATEGORY_LABELS = {
     masse: 'Masse',
     distance: 'Longueur',
-    volume: 'Volume'
+    volume: 'Volume',
+    courant: 'Courant électrique',
+    tension: 'Tension électrique'
   };
+
+  // Pool par défaut (4e) vs pool étendu (3e et au-delà) : le générateur et le
+  // mode Custom restent sur BASIC tant qu'on ne demande pas explicitement le
+  // pool étendu, pour ne jamais changer le comportement du 4e par erreur.
+  const BASIC_CATEGORY_KEYS = ['masse', 'distance', 'volume'];
+  const EXTENDED_CATEGORY_KEYS = ['masse', 'distance', 'volume', 'courant', 'tension'];
 
   function unitLabel(category, rank) {
     return PREFIXES[rank] + category.base;
@@ -49,6 +59,42 @@
     }));
   }
 
+  // --- Temps : modèle dédié (facteurs non uniformes, pas de préfixes) ---
+  // Ordre du plus grand au plus petit : année, jour, heure, minute, seconde.
+  // FACTORS[i] relie l'unité i à l'unité i+1 (ex: 1 année = 365 jours).
+  const TIME_UNITS = [
+    { key: 'annee', full: 'année', short: 'an' },
+    { key: 'jour', full: 'jours', short: 'j' },
+    { key: 'heure', full: 'heure', short: 'h' },
+    { key: 'minute', full: 'minute', short: 'min' },
+    { key: 'seconde', full: 'seconde', short: 's' }
+  ];
+  const TIME_FACTORS = [365, 24, 60, 60]; // entre TIME_UNITS[i] et TIME_UNITS[i+1]
+
+  // Liste ordonnée des opérations (op:'×'|'÷', factor) pour aller de fromIndex à toIndex
+  function timeRequiredOps(fromIndex, toIndex) {
+    const ops = [];
+    if (fromIndex < toIndex) {
+      for (let i = fromIndex; i < toIndex; i++) {
+        ops.push({ op: '×', factor: TIME_FACTORS[i] });
+      }
+    } else if (fromIndex > toIndex) {
+      for (let i = fromIndex - 1; i >= toIndex; i--) {
+        ops.push({ op: '÷', factor: TIME_FACTORS[i] });
+      }
+    }
+    return ops;
+  }
+
+  function timeConvert(value, fromIndex, toIndex) {
+    const ops = timeRequiredOps(fromIndex, toIndex);
+    let result = value;
+    ops.forEach((o) => {
+      result = o.op === '×' ? result * o.factor : result / o.factor;
+    });
+    return Math.round(result * 1e6) / 1e6;
+  }
+
   window.Units = {
     PREFIXES,
     EXPONENTS,
@@ -58,6 +104,12 @@
     categoryByKey,
     unitId,
     parseUnitId,
-    unitsForCategory
+    unitsForCategory,
+    BASIC_CATEGORY_KEYS,
+    EXTENDED_CATEGORY_KEYS,
+    TIME_UNITS,
+    TIME_FACTORS,
+    timeRequiredOps,
+    timeConvert
   };
 })();

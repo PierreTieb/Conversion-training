@@ -16,8 +16,10 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function randomCategory() {
-    return Units.CATEGORIES[randInt(0, Units.CATEGORIES.length - 1)];
+  function randomCategory(poolKeys) {
+    const keys = poolKeys || Units.BASIC_CATEGORY_KEYS;
+    const list = Units.CATEGORIES.filter((c) => keys.includes(c.key));
+    return list[randInt(0, list.length - 1)];
   }
 
   // Choisit un rang de départ et un rang d'arrivée (0..6), avec un écart
@@ -75,8 +77,8 @@
     return value;
   }
 
-  function generate(level) {
-    const category = randomCategory();
+  function generate(level, poolKeys) {
+    const category = randomCategory(poolKeys);
     const maxDiff = level === 'facile' ? 3 : null;
     const ranks = pickRanks(maxDiff);
     const value = randomValueForRanks(ranks.from, ranks.to, level);
@@ -118,6 +120,48 @@
     };
   }
 
+  // Exemple pour le Tuto Temps : 2 unités distinctes parmi les 5 (année à
+  // seconde), n'importe quel écart (peut nécessiter plusieurs opérations).
+  function generateTutoTemps() {
+    let fromIndex, toIndex;
+    do {
+      fromIndex = randInt(0, 4);
+      toIndex = randInt(0, 4);
+    } while (fromIndex === toIndex);
+
+    const value = randInt(1, 99);
+    const answer = Units.timeConvert(value, fromIndex, toIndex);
+    const ops = Units.timeRequiredOps(fromIndex, toIndex);
+
+    return {
+      fromIndex,
+      toIndex,
+      fromValue: value,
+      fromUnit: Units.TIME_UNITS[fromIndex],
+      toUnit: Units.TIME_UNITS[toIndex],
+      ops,
+      answer
+    };
+  }
+
+  // Exemple pour le Tuto Vitesse : m/s -> km/h (x3,6) ou km/h -> m/s (/3,6)
+  function generateTutoVitesse() {
+    const direction = randInt(0, 1) === 0 ? 'ms-to-kmh' : 'kmh-to-ms';
+    const value = randInt(1, 99);
+    const answer = direction === 'ms-to-kmh'
+      ? Math.round(value * 3.6 * 1e6) / 1e6
+      : Math.round((value / 3.6) * 1e6) / 1e6;
+
+    return {
+      direction,
+      fromValue: value,
+      fromUnit: direction === 'ms-to-kmh' ? 'm/s' : 'km/h',
+      toUnit: direction === 'ms-to-kmh' ? 'km/h' : 'm/s',
+      operation: direction === 'ms-to-kmh' ? '× 3,6' : '÷ 3,6',
+      answer
+    };
+  }
+
   function nearlyEqual(a, b) {
     const diff = Math.abs(a - b);
     return diff <= Math.max(1e-6, Math.abs(b) * 1e-6);
@@ -140,5 +184,5 @@
     return str;
   }
 
-  window.Generator = { generate, generateTuto, computeAnswer, nearlyEqual, parseUserValue, formatNumberFR };
+  window.Generator = { generate, generateTuto, generateTutoTemps, generateTutoVitesse, computeAnswer, nearlyEqual, parseUserValue, formatNumberFR };
 })();
