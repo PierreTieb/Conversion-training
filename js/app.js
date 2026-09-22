@@ -327,7 +327,7 @@
     chronoEl.classList.add('hidden');
     scoreDisplayEl.classList.add('hidden');
     if (exerciseReturnScreen === 'entrainement3eMenu') {
-      setTheme('entrainement3e');
+      setTheme('');
       showScreen('entrainement3eMenu');
     } else {
       setTheme('');
@@ -772,7 +772,7 @@
   function goBackFromTuto() {
     clearPendingTimers();
     if (tutoReturnScreen === 'tuto3eMenu') {
-      setTheme('tuto3e');
+      setTheme('');
       showScreen('tuto3eMenu');
     } else {
       goHome();
@@ -1487,7 +1487,7 @@
   // --- Écouteurs d'événements : mode mixte ---
   btnBackMixedReady.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('entrainement3e');
+    setTheme('');
     showScreen('entrainement3eMenu');
   });
   btnMixedReady.addEventListener('click', () => {
@@ -1499,7 +1499,7 @@
   });
   btnBackMixed.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('entrainement3e');
+    setTheme('');
     showScreen('entrainement3eMenu');
   });
   btnMixedValidate.addEventListener('click', validateMixedAnswer);
@@ -1526,7 +1526,7 @@
       } else if (diff === 'tuto') {
         startTutoSession('home', 'tuto');
       } else if (diff === 'tuto3e') {
-        setTheme('tuto3e');
+        setTheme('');
         showScreen('tuto3eMenu');
       } else if (diff === 'tuto3e-classique') {
         startTutoSession('tuto3eMenu', 'tuto3e-classique');
@@ -1535,7 +1535,7 @@
       } else if (diff === 'tuto3e-vitesse') {
         startTutoVitesseSession();
       } else if (diff === 'entrainement3e') {
-        setTheme('entrainement3e');
+        setTheme('');
         showScreen('entrainement3eMenu');
       } else if (diff === 'entrainement3e-classique') {
         startSession('moyen', {
@@ -1608,7 +1608,7 @@
   // --- Écouteurs d'événements : Tuto Temps ---
   btnBackTutoTemps.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('tuto3e');
+    setTheme('');
     showScreen('tuto3eMenu');
   });
   btnTtPrev.addEventListener('click', onTtPrev);
@@ -1618,7 +1618,7 @@
   btnTtRetry.addEventListener('click', newTutoTempsExample);
   btnTtHome.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('tuto3e');
+    setTheme('');
     showScreen('tuto3eMenu');
   });
   ttOpButtons.forEach((btn) => {
@@ -1634,7 +1634,7 @@
   // --- Écouteurs d'événements : Tuto Vitesse ---
   btnBackTutoVitesse.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('tuto3e');
+    setTheme('');
     showScreen('tuto3eMenu');
   });
   btnTvPrev.addEventListener('click', onTvPrev);
@@ -1645,7 +1645,7 @@
   btnTvRetry.addEventListener('click', newTutoVitesseExample);
   btnTvHome.addEventListener('click', () => {
     clearPendingTimers();
-    setTheme('tuto3e');
+    setTheme('');
     showScreen('tuto3eMenu');
   });
   tvAnswerInput.addEventListener('keydown', (e) => {
