@@ -29,7 +29,6 @@
   // pool étendu, pour ne jamais changer le comportement du 4e par erreur.
   const BASIC_CATEGORY_KEYS = ['masse', 'distance', 'volume'];
   const EXTENDED_CATEGORY_KEYS = ['masse', 'distance', 'volume', 'courant', 'tension'];
-
   function unitLabel(category, rank) {
     return PREFIXES[rank] + category.base;
   }
@@ -95,6 +94,30 @@
     return Math.round(result * 1e6) / 1e6;
   }
 
+  // --- Familles dédiées au mode Custom (inclut temps et vitesse, qui ne
+  // suivent pas le système de rangs/préfixes des autres familles) ---
+  const CUSTOM_FAMILIES = {
+    masse: { label: CATEGORY_LABELS.masse, getUnits: () => unitsForCategory('masse') },
+    distance: { label: CATEGORY_LABELS.distance, getUnits: () => unitsForCategory('distance') },
+    volume: { label: CATEGORY_LABELS.volume, getUnits: () => unitsForCategory('volume') },
+    courant: { label: CATEGORY_LABELS.courant, getUnits: () => unitsForCategory('courant') },
+    tension: { label: CATEGORY_LABELS.tension, getUnits: () => unitsForCategory('tension') },
+    temps: {
+      label: 'Temps',
+      getUnits: () => TIME_UNITS.map((u, idx) => ({ id: 'temps:' + idx, label: u.full }))
+    },
+    vitesse: {
+      label: 'Vitesse',
+      getUnits: () => [
+        { id: 'vitesse:ms', label: 'm/s' },
+        { id: 'vitesse:kmh', label: 'km/h' }
+      ]
+    }
+  };
+
+  const CUSTOM_BASIC_FAMILY_KEYS = ['masse', 'distance', 'volume'];
+  const CUSTOM_EXTENDED_FAMILY_KEYS = ['masse', 'distance', 'volume', 'courant', 'tension', 'temps', 'vitesse'];
+
   window.Units = {
     PREFIXES,
     EXPONENTS,
@@ -110,6 +133,9 @@
     TIME_UNITS,
     TIME_FACTORS,
     timeRequiredOps,
-    timeConvert
+    timeConvert,
+    CUSTOM_FAMILIES,
+    CUSTOM_BASIC_FAMILY_KEYS,
+    CUSTOM_EXTENDED_FAMILY_KEYS
   };
 })();

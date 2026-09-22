@@ -407,7 +407,7 @@ h1 {
 }
 .level-3e:active { box-shadow: 0 2px 0 var(--level3e-dark), 0 6px 10px rgba(209, 78, 146, 0.26), inset 0 2px 0 rgba(255,255,255,0.5); }
 
-.home-back { margin-bottom: 14px; }
+.home-back { margin-bottom: 14px; align-self: flex-start; text-align: left; }
 
 
 

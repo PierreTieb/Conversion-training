@@ -516,12 +516,14 @@
   // ===================================================================
 
   function populateFromUnitSelect(poolKeys) {
-    const keys = poolKeys || Units.BASIC_CATEGORY_KEYS;
+    const keys = poolKeys || Units.CUSTOM_BASIC_FAMILY_KEYS;
     customFromUnitSelect.innerHTML = '<option value="" disabled selected>Unité...</option>';
-    Units.CATEGORIES.filter((c) => keys.includes(c.key)).forEach((category) => {
+    keys.forEach((key) => {
+      const family = Units.CUSTOM_FAMILIES[key];
+      if (!family) return;
       const group = document.createElement('optgroup');
-      group.label = Units.CATEGORY_LABELS[category.key];
-      Units.unitsForCategory(category.key).forEach((unit) => {
+      group.label = family.label;
+      family.getUnits().forEach((unit) => {
         const opt = document.createElement('option');
         opt.value = unit.id;
         opt.textContent = unit.label;
@@ -532,13 +534,35 @@
   }
 
   function populateToUnitSelect(categoryKey) {
-    customToUnitSelect.innerHTML = '<option value="" disabled selected>Unité...</option>';
-    Units.unitsForCategory(categoryKey).forEach((unit) => {
+    customToUnitSelect.innerHTML = '';
+
+    if (categoryKey === 'vitesse') {
+      // Règle spéciale : m/s en entrée force km/h en sortie, et inversement.
+      const fromKey = customFromUnitSelect.value.split(':')[1];
+      const forced = fromKey === 'ms'
+        ? { id: 'vitesse:kmh', label: 'km/h' }
+        : { id: 'vitesse:ms', label: 'm/s' };
       const opt = document.createElement('option');
-      opt.value = unit.id;
-      opt.textContent = unit.label;
+      opt.value = forced.id;
+      opt.textContent = forced.label;
+      opt.selected = true;
       customToUnitSelect.appendChild(opt);
-    });
+    } else {
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      placeholder.textContent = 'Unité...';
+      customToUnitSelect.appendChild(placeholder);
+
+      const family = Units.CUSTOM_FAMILIES[categoryKey];
+      family.getUnits().forEach((unit) => {
+        const opt = document.createElement('option');
+        opt.value = unit.id;
+        opt.textContent = unit.label;
+        customToUnitSelect.appendChild(opt);
+      });
+    }
     customToUnitSelect.disabled = false;
   }
 
@@ -591,12 +615,19 @@
 
   function onCustomFromUnitChange() {
     if (!customFromUnitSelect.value) return;
-    const { categoryKey } = Units.parseUnitId(customFromUnitSelect.value);
+    const categoryKey = customFromUnitSelect.value.split(':')[0];
     populateToUnitSelect(categoryKey);
     customToValueInput.value = '';
-    customToValueInput.disabled = true;
-    btnCustomValidate.disabled = true;
-    btnCustomSolve.disabled = true;
+    if (categoryKey === 'vitesse') {
+      // Une seule unité possible en sortie : pas besoin de choix supplémentaire.
+      customToValueInput.disabled = false;
+      btnCustomValidate.disabled = false;
+      btnCustomSolve.disabled = false;
+    } else {
+      customToValueInput.disabled = true;
+      btnCustomValidate.disabled = true;
+      btnCustomSolve.disabled = true;
+    }
   }
 
   function onCustomToUnitChange() {
@@ -609,8 +640,38 @@
   function getCustomExpectedAnswer() {
     const fromValue = Generator.parseUserValue(customFromValueInput.value);
     if (isNaN(fromValue)) return null;
-    const from = Units.parseUnitId(customFromUnitSelect.value);
-    const to = Units.parseUnitId(customToUnitSelect.value);
+
+    const fromId = customFromUnitSelect.value;
+    const toId = customToUnitSelect.value;
+    const family = fromId.split(':')[0];
+
+    if (family === 'temps') {
+      const fromIndex = Number(fromId.split(':')[1]);
+      const toIndex = Number(toId.split(':')[1]);
+      return {
+        fromValue,
+        toLabel: Units.TIME_UNITS[toIndex].full,
+        answer: Units.timeConvert(fromValue, fromIndex, toIndex)
+      };
+    }
+
+    if (family === 'vitesse') {
+      const fromKey = fromId.split(':')[1];
+      const toKey = toId.split(':')[1];
+      let answer;
+      if (fromKey === toKey) {
+        answer = fromValue;
+      } else if (fromKey === 'ms') {
+        answer = fromValue * 3.6;
+      } else {
+        answer = fromValue / 3.6;
+      }
+      answer = Math.round(answer * 1e6) / 1e6;
+      return { fromValue, toLabel: toKey === 'ms' ? 'm/s' : 'km/h', answer };
+    }
+
+    const from = Units.parseUnitId(fromId);
+    const to = Units.parseUnitId(toId);
     return {
       fromValue,
       toLabel: Units.unitLabel(Units.categoryByKey(to.categoryKey), to.rank),
@@ -1461,7 +1522,7 @@
       if (diff === 'custom') {
         startCustomSession('home');
       } else if (diff === 'custom3e') {
-        startCustomSession('home3e', Units.EXTENDED_CATEGORY_KEYS);
+        startCustomSession('home3e', Units.CUSTOM_EXTENDED_FAMILY_KEYS);
       } else if (diff === 'tuto') {
         startTutoSession('home', 'tuto');
       } else if (diff === 'tuto3e') {
