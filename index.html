@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Entraînement aux conversions</title>
+<title>Les Conversions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -15,158 +15,169 @@
 
   <main id="app">
 
-    <section id="screen-level-select" class="screen active">
+    <section id="screen-home" class="screen active">
       <div class="home-inner">
-        <h1>Entraînement aux conversions</h1>
-        <p class="subtitle">Choisis ton niveau</p>
+        <h1>Les Conversions</h1>
+        <p class="subtitle">Des méthodes et des entraînements pour maîtriser les conversions au collège</p>
 
-        <div class="mode-group">
-          <button class="level-card level-4e" data-level="4e" type="button">
-            <span class="diff-name">Je suis en 4e</span>
-            <span class="diff-desc">Conversions basiques : masse, distance, volume</span>
+        <div class="menu-list">
+          <button class="diff-card diff-card--icon btn-tutoriels" data-nav="tutoMenu" type="button">
+            <span class="diff-name">Tutoriels</span>
+            <span class="diff-desc">Apprends à convertir différentes grandeurs à ton rythme</span>
+            <svg class="diff-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <defs>
+                <linearGradient id="ico-page" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFBEF"/><stop offset="1" stop-color="#F3E3BE"/></linearGradient>
+                <linearGradient id="ico-cover" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A65A32"/><stop offset="1" stop-color="#7A3E1F"/></linearGradient>
+              </defs>
+              <!-- couverture en cuir -->
+              <path d="M3 21q0-4 4-4l22 2q3 .6 6 0l22-2q4 0 4 4v29q0 3-3 3.3l-22 1.4q-3 1.2-6 0l-22-1.4Q3 53 3 50z" fill="url(#ico-cover)"/>
+              <!-- tranches des pages -->
+              <path d="M7 50q12-4 24 1.5M57 50q-12-4-24 1.5" fill="none" stroke="#E2CC9C" stroke-width="2"/>
+              <path d="M7 47.5q12-4 24 1.5M57 47.5q-12-4-24 1.5" fill="none" stroke="#EAD8AE" stroke-width="2"/>
+              <!-- pages ouvertes -->
+              <path d="M7 15q12-5 25 1v31q-13-6-25-1z" fill="url(#ico-page)" stroke="#C9A86A" stroke-width="1.2" stroke-linejoin="round"/>
+              <path d="M57 15q-12-5-25 1v31q13-6 25-1z" fill="url(#ico-page)" stroke="#C9A86A" stroke-width="1.2" stroke-linejoin="round"/>
+              <!-- lignes d'écriture -->
+              <path d="M11 22q8-3 17 .5M11 27q8-3 17 .5M11 32q8-3 17 .5M11 37q8-3 12-.5M36 22.5q8-3.5 17-.5M36 27.5q8-3.5 17-.5M36 32.5q8-3.5 17-.5" fill="none" stroke="#C7AE7E" stroke-width="1.4" stroke-linecap="round"/>
+              <!-- pli central -->
+              <path d="M32 16v31" stroke="#B89558" stroke-width="1.4"/>
+              <!-- marque-page en ruban -->
+              <path d="M42 13h5v46l-2.5-3-2.5 3z" fill="#D6453A"/>
+              <path d="M42 13h1.6v43.2l-1.6 2z" fill="#F06A5E"/>
+            </svg>
           </button>
-        </div>
-
-        <div class="mode-group">
-          <button class="level-card level-3e" data-level="3e" type="button">
-            <span class="diff-name">Je suis en 3e ou au-delà</span>
-            <span class="diff-desc">Toutes les conversions : + temps, vitesse, Ampère, Volt</span>
+          <button class="diff-card diff-card--icon btn-entrainements" data-nav="trainMenu" type="button">
+            <span class="diff-name">Entraînements</span>
+            <span class="diff-desc">Entraîne-toi avec une liste infinie de conversions</span>
+            <svg class="diff-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <defs>
+                <linearGradient id="ico-board" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A5A86"/><stop offset="1" stop-color="#2A3557"/></linearGradient>
+                <linearGradient id="ico-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE38A"/><stop offset="1" stop-color="#E0A81E"/></linearGradient>
+              </defs>
+              <!-- calotte -->
+              <path d="M15 29v12q17 9 34 0V29l-17 8z" fill="#1F2742"/>
+              <path d="M15 41q17 9 34 0" fill="none" stroke="#3B4870" stroke-width="1.6"/>
+              <!-- plateau -->
+              <path d="M32 11l28 12.5L32 36 4 23.5z" fill="url(#ico-board)"/>
+              <path d="M32 11l28 12.5L32 36 4 23.5z" fill="none" stroke="#5E70A3" stroke-width="1.2" stroke-linejoin="round"/>
+              <path d="M10 22.5L32 13l22 9.5" fill="none" stroke="#7184B8" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+              <!-- pompon -->
+              <path d="M32 23.5l18 5.5v13" fill="none" stroke="url(#ico-gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="32" cy="23.5" r="2.6" fill="url(#ico-gold)"/>
+              <path d="M47 41.5h6l1.5 10h-9z" fill="url(#ico-gold)"/>
+              <path d="M48 43.5v7.5M50 43.5v8M52 43.5v7.5" stroke="#C8901A" stroke-width="1"/>
+            </svg>
           </button>
-        </div>
-      </div>
-    </section>
-
-    <section id="screen-home" class="screen">
-      <div class="home-inner">
-        <button id="btn-to-level-select" class="btn-text home-back" type="button">&larr; Changer de niveau</button>
-        <h1>Conversions basiques</h1>
-        <p class="subtitle">Choisis ton mode pour commencer</p>
-
-        <div class="mode-group mode-group-tuto">
-          <p class="mode-caption">Pour découvrir la méthode de conversion</p>
-          <button class="diff-card diff-tuto" data-diff="tuto" type="button">
-            <span class="diff-name">Tuto</span>
-            <span class="diff-desc">Un exemple expliqué pas à pas</span>
+          <button class="diff-card diff-card--icon btn-challenge" data-nav="challenge" type="button">
+            <span class="diff-name">Challenge</span>
+            <span class="diff-desc">Cinq conversions chronométrées : décroche une médaille !</span>
+            <svg class="diff-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <defs>
+                <linearGradient id="ico-cup" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E9A514"/><stop offset=".35" stop-color="#FFE48A"/><stop offset=".6" stop-color="#F7C437"/><stop offset="1" stop-color="#D48D0C"/></linearGradient>
+                <linearGradient id="ico-wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8A5530"/><stop offset="1" stop-color="#5E3519"/></linearGradient>
+              </defs>
+              <!-- anses -->
+              <path d="M19 15h-8q-2 11 9 15M45 15h8q2 11-9 15" fill="none" stroke="#E2A41C" stroke-width="3.6" stroke-linecap="round"/>
+              <!-- coupe -->
+              <path d="M17 9h30v12q0 16-15 18Q17 37 17 21z" fill="url(#ico-cup)"/>
+              <ellipse cx="32" cy="9" rx="15" ry="2.6" fill="#FFF0B8"/>
+              <path d="M22 13v8q0 7 4 11" fill="none" stroke="#FFF7D6" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>
+              <!-- étoile -->
+              <path d="M32 15l2.2 4.6 5 .6-3.7 3.4 1 5-4.5-2.5-4.5 2.5 1-5-3.7-3.4 5-.6z" fill="#FFF6CF" stroke="#D99A17" stroke-width=".8" stroke-linejoin="round"/>
+              <!-- pied -->
+              <path d="M28 38.5h8l-1 7h-6z" fill="#E0A51E"/>
+              <path d="M24 45.5h16l2 4H22z" fill="url(#ico-cup)"/>
+              <!-- socle -->
+              <rect x="18" y="49.5" width="28" height="9" rx="2" fill="url(#ico-wood)"/>
+              <rect x="26" y="52" width="12" height="4" rx="1" fill="#F2C445"/>
+            </svg>
           </button>
-        </div>
-
-        <div class="mode-group mode-group-levels">
-          <p class="mode-caption">Pour s'exercer à différents niveaux</p>
-          <div class="levels-row">
-            <button class="diff-card diff-facile" data-diff="facile" type="button">
-              <span class="diff-name">Niveau 1</span>
-              <span class="diff-desc">Unités proches, nombres simples</span>
-            </button>
-            <button class="diff-card diff-moyen" data-diff="moyen" type="button">
-              <span class="diff-name">Niveau 2</span>
-              <span class="diff-desc">Toutes les conversions, avec décimales</span>
-            </button>
-            <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
-              <span class="diff-name">Évaluation</span>
-              <span class="diff-desc">5 conversions chronométrées</span>
-              <span class="diff-best" hidden></span>
-            </button>
-          </div>
-        </div>
-
-        <div class="mode-group mode-group-custom">
-          <p class="mode-caption">Pour créer et résoudre ses propres conversions</p>
-          <button class="diff-card diff-custom" data-diff="custom" type="button">
+          <button class="diff-card diff-card--icon btn-custom" data-diff="custom" type="button">
             <span class="diff-name">Custom</span>
-            <span class="diff-desc">Crée ta propre conversion</span>
+            <span class="diff-desc">Crée toi-même ta conversion et résous-la !</span>
+            <svg class="diff-ico" viewBox="0 0 64 64" aria-hidden="true">
+              <g transform="rotate(-45 32 32)">
+                <!-- bois taillé et mine -->
+                <path d="M4 32l11-7v14z" fill="#F4D5A6"/>
+                <path d="M4 32l4.4-2.8v5.6z" fill="#3A3F4A"/>
+                <!-- corps à pans -->
+                <rect x="15" y="25" width="31" height="14" fill="#FFC83D"/>
+                <rect x="15" y="25" width="31" height="4.6" fill="#FFDB73"/>
+                <rect x="15" y="34.4" width="31" height="4.6" fill="#EBA81B"/>
+                <!-- virole -->
+                <rect x="46" y="24.5" width="7" height="15" fill="#C9D2DC"/>
+                <path d="M48 24.5v15M51 24.5v15" stroke="#9AA6B4" stroke-width="1.2"/>
+                <!-- gomme -->
+                <path d="M53 24.5h4.5q3.5 0 3.5 3.5v8q0 3.5-3.5 3.5H53z" fill="#F58FB0"/>
+                <path d="M53 26h4q2.4 0 2.4 2.4v1.6H53z" fill="#FBB7CC"/>
+              </g>
+            </svg>
           </button>
         </div>
       </div>
     </section>
 
-    <section id="screen-home-3e" class="screen">
+    <section id="screen-tuto-menu" class="screen">
       <div class="home-inner">
-        <button id="btn-to-level-select-3e" class="btn-text home-back" type="button">&larr; Changer de niveau</button>
-        <h1>Conversions 3e et au-delà</h1>
-        <p class="subtitle">Choisis ton mode</p>
+        <button class="btn-text home-back" data-back="home" type="button">&larr; Retour</button>
+        <h1>Tutoriels</h1>
+        <p class="subtitle">Apprends à convertir différentes grandeurs à ton rythme</p>
 
-        <div class="mode-group">
-          <p class="mode-caption">Pour apprendre pas à pas</p>
-          <button class="diff-card diff-tuto3e" data-diff="tuto3e" type="button">
-            <span class="diff-name">Tuto</span>
-            <span class="diff-desc">Conversions classiques, temps, vitesse</span>
+        <div id="tuto-menu-list" class="menu-list menu-list--braced">
+          <button class="diff-card btn-tuto-classique" data-diff="tuto-classique" type="button">
+            <span class="diff-name">Conversions classiques</span>
+            <span class="diff-desc">Apprends à convertir les mètres, les grammes, les litres... avec un tableau de conversion</span>
           </button>
-        </div>
-
-        <div class="mode-group">
-          <p class="mode-caption">Pour s'entraîner et être évalué</p>
-          <button class="diff-card diff-entrainement3e" data-diff="entrainement3e" type="button">
-            <span class="diff-name">Entraînement</span>
-            <span class="diff-desc">Entraînements et évaluations</span>
+          <button class="diff-card btn-tuto-temps" data-diff="tuto-temps" type="button">
+            <span class="diff-name">Conversions de temps</span>
+            <span class="diff-desc">Apprends à convertir le temps : passer des heures aux secondes, et bien d'autres</span>
           </button>
-        </div>
-
-        <div class="mode-group">
-          <p class="mode-caption">Pour créer et résoudre ses propres conversions</p>
-          <button class="diff-card diff-custom" data-diff="custom3e" type="button">
-            <span class="diff-name">Custom</span>
-            <span class="diff-desc">Toutes unités, y compris temps et vitesse</span>
+          <button class="diff-card btn-tuto-vitesse" data-diff="tuto-vitesse" type="button">
+            <span class="diff-name">Conversions de vitesse</span>
+            <span class="diff-desc">La conversion la plus difficile : passer des m/s aux km/h</span>
           </button>
         </div>
       </div>
     </section>
 
-    <section id="screen-tuto3e-menu" class="screen">
+    <section id="screen-train-menu" class="screen">
       <div class="home-inner">
-        <button id="btn-back-tuto3e-menu" class="btn-text home-back" type="button">&larr; Retour</button>
-        <h1>Mode Tuto</h1>
-        <p class="subtitle">Choisis le tuto à découvrir</p>
+        <button class="btn-text home-back" data-back="home" type="button">&larr; Retour</button>
+        <h1>Entraînements</h1>
+        <p class="subtitle">Entraîne-toi avec une liste infinie de conversions</p>
 
-        <div class="mode-group">
-          <button class="diff-card diff-tuto3e-classique" data-diff="tuto3e-classique" type="button">
-            <span class="diff-name">Conversions Classiques</span>
-            <span class="diff-desc">Masse, distance, volume (identique au Tuto 4e)</span>
+        <div id="train-menu-list" class="menu-list menu-list--braced menu-list--braced-2">
+          <button class="diff-card btn-train-n1" data-diff="train-n1" type="button">
+            <span class="diff-name">Entraînement simple</span>
+            <span class="diff-desc">Masse, distance, volume : unités proches, nombres simples, avec indice</span>
           </button>
-        </div>
-        <div class="mode-group">
-          <button class="diff-card diff-tuto3e-temps" data-diff="tuto3e-temps" type="button">
-            <span class="diff-name">Conversions de Temps</span>
-            <span class="diff-desc">Année, jour, heure, minute, seconde</span>
-          </button>
-        </div>
-        <div class="mode-group">
-          <button class="diff-card diff-tuto3e-vitesse" data-diff="tuto3e-vitesse" type="button">
-            <span class="diff-name">Conversions de Vitesse</span>
-            <span class="diff-desc">m/s et km/h, la méthode rapide</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section id="screen-entrainement3e-menu" class="screen">
-      <div class="home-inner">
-        <button id="btn-back-entrainement3e-menu" class="btn-text home-back" type="button">&larr; Retour</button>
-        <h1>Mode Entraînement</h1>
-        <p class="subtitle">Choisis ton entraînement</p>
-
-        <div class="mode-group">
-          <button class="diff-card diff-entrainement3e-classique" data-diff="entrainement3e-classique" type="button">
+          <button class="diff-card btn-train-classique" data-diff="train-classique" type="button">
             <span class="diff-name">Entraînement classique</span>
-            <span class="diff-desc">Masse, distance, volume, Ampère, Volt</span>
+            <span class="diff-desc">Masse, distance, volume, Ampère, Volt, avec décimales</span>
           </button>
-        </div>
-        <div class="mode-group">
-          <button class="diff-card diff-entrainement3e-tv" data-diff="entrainement3e-tv" type="button">
+          <button class="diff-card btn-train-tv" data-diff="train-tv" type="button">
             <span class="diff-name">Entraînement temps et vitesse</span>
             <span class="diff-desc">Conversions de temps et de vitesse mélangées</span>
           </button>
         </div>
-        <div class="mode-group">
-          <button class="diff-card diff-eval3e-classique" data-diff="evaluation3e-classique" type="button">
-            <span class="diff-name">Évaluation classique</span>
-            <span class="diff-desc">5 conversions chronométrées, Ampère et Volt inclus</span>
+      </div>
+    </section>
+
+    <section id="screen-challenge" class="screen">
+      <div class="home-inner">
+        <button class="btn-text home-back" data-back="home" type="button">&larr; Retour</button>
+        <h1>Challenge</h1>
+        <p class="subtitle">Réussis 5 conversions le plus vite possible. Chaque erreur te coûte 5 secondes !</p>
+
+        <div class="menu-list">
+          <button class="diff-card metal metal--violet" data-diff="eval4e" type="button">
+            <span class="diff-name">Évaluation 4e</span>
+            <span class="diff-desc">Cinq conversions classiques chronométrées</span>
             <span class="diff-best" hidden></span>
           </button>
-        </div>
-        <div class="mode-group">
-          <button class="diff-card diff-eval3e-experte" data-diff="evaluation3e-experte" type="button">
-            <span class="diff-name">Évaluation experte</span>
-            <span class="diff-desc">Tout mélangé : classique, temps, vitesse</span>
+          <button class="diff-card metal metal--obsidian" data-diff="eval3e" type="button">
+            <span class="diff-name">Évaluation 3e</span>
+            <span class="diff-desc">Cinq conversions chronométrées parmi toutes les méthodes possibles</span>
             <span class="diff-best" hidden></span>
           </button>
         </div>
@@ -188,7 +199,8 @@
     <section id="screen-mixed" class="screen">
       <div class="exercise-topbar">
         <button id="btn-back-mixed" class="btn-text" type="button">&larr; Retour</button>
-        <div id="mixed-chrono" class="chrono hidden">⏱ <span id="mixed-chrono-value">0.0 s</span></div>
+        <div id="mixed-eval-progress" class="chrono hidden">✓ <span id="mixed-eval-progress-value">0/5</span></div>
+        <div id="mixed-chrono" class="chrono hidden">⏱ <span id="mixed-chrono-value">0,0 s</span></div>
         <div id="mixed-score-display" class="chrono hidden">Score : <span id="mixed-score-value">0/0</span></div>
       </div>
 
@@ -271,10 +283,10 @@
         <div id="tt-feedback" class="feedback" role="status" aria-live="polite"></div>
 
         <div id="tt-success" class="tuto-success hidden">
-          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner dans les Entraînements !</p>
           <div class="recap-actions">
             <button id="btn-tt-retry" class="btn-primary" type="button">Réessayer</button>
-            <button id="btn-tt-home" class="btn-secondary" type="button">Modes de jeu</button>
+            <button id="btn-tt-home" class="btn-secondary" type="button">Autres tutoriels</button>
           </div>
         </div>
       </div>
@@ -316,10 +328,10 @@
         <div id="tv-feedback" class="feedback" role="status" aria-live="polite"></div>
 
         <div id="tv-success" class="tuto-success hidden">
-          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner dans les Entraînements !</p>
           <div class="recap-actions">
             <button id="btn-tv-retry" class="btn-primary" type="button">Réessayer</button>
-            <button id="btn-tv-home" class="btn-secondary" type="button">Modes de jeu</button>
+            <button id="btn-tv-home" class="btn-secondary" type="button">Autres tutoriels</button>
           </div>
         </div>
       </div>
@@ -328,7 +340,8 @@
     <section id="screen-exercise" class="screen">
       <div class="exercise-topbar">
         <button id="btn-back" class="btn-text" type="button">&larr; Retour</button>
-        <div id="chrono" class="chrono hidden">⏱ <span id="chrono-value">0.0 s</span></div>
+        <div id="eval-progress" class="chrono hidden">✓ <span id="eval-progress-value">0/5</span></div>
+        <div id="chrono" class="chrono hidden">⏱ <span id="chrono-value">0,0 s</span></div>
         <div id="score-display" class="chrono hidden">Score : <span id="score-value">0/0</span></div>
       </div>
 
@@ -420,27 +433,17 @@
         <div id="tuto-feedback" class="feedback" role="status" aria-live="polite"></div>
 
         <div id="tuto-success" class="tuto-success hidden">
-          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner avec les autres modes de jeu !</p>
+          <p class="tuto-success-message">Bravo, maintenant tu peux réessayer un tuto expliqué ou bien aller t'entraîner dans les Entraînements !</p>
           <div class="recap-actions">
             <button id="btn-tuto-retry" class="btn-primary" type="button">Réessayer</button>
-            <button id="btn-tuto-home" class="btn-secondary" type="button">Modes de jeu</button>
+            <button id="btn-tuto-home" class="btn-secondary" type="button">Autres tutoriels</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="screen-recap" class="screen">
-      <div class="recap-card" id="recap-card">
-        <h2 id="recap-title">Résultats</h2>
-        <p class="recap-score" id="recap-score">Score : 0/5</p>
-        <p class="recap-time" id="recap-time">Temps moyen : 0 s</p>
-        <p class="recap-message" id="recap-message"></p>
-        <p class="recap-best" id="recap-best"></p>
-        <div class="recap-actions">
-          <button id="btn-restart" class="btn-primary" type="button">Relancer une série</button>
-          <button id="btn-home" class="btn-secondary" type="button">Choisir une autre difficulté</button>
-        </div>
-      </div>
+    <section id="screen-results" class="screen">
+      <div id="results" class="results"></div>
     </section>
 
     <section id="draft-table-wrap" class="draft-wrap hidden">

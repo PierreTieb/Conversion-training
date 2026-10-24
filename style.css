@@ -12,92 +12,12 @@
   --ink-soft: #7C8A9A;
   --ink-faint: #A8B4C0;
 
-  /* Couleurs par mode : light (dégradé haut), mid (dégradé bas / fond clair),
-     dark (ombre "relief"), text (texte du bouton) */
-  --tuto-light: #E7F5C7;
-  --tuto-mid: #A4D65E;
-  --tuto-dark: #82B83E;
-  --tuto-text: #3E5E1A;
-
-  --facile-light: #FFF3B0;
-  --facile-mid: #FFD93D;
-  --facile-dark: #E8B923;
-  --facile-text: #6B4E00;
-
-  --moyen-light: #FFDDB0;
-  --moyen-mid: #FFB25B;
-  --moyen-dark: #F08C3A;
-  --moyen-text: #7A3B0A;
-
-  --evaluation-light: #E7D8F7;
-  --evaluation-mid: #B389D9;
-  --evaluation-dark: #9268BE;
-  --evaluation-text: #4A2E7A;
-
-  --custom-light: #CDEEFA;
-  --custom-mid: #6FC3E4;
-  --custom-dark: #45A6CC;
-  --custom-text: #0B4E66;
-
-  /* Page de choix de niveau */
-  --level4e-light: #CDEEFA;
-  --level4e-mid: #6FC3E4;
-  --level4e-dark: #45A6CC;
-  --level4e-text: #0B4E66;
-
-  --level3e-light: #FCD8EC;
-  --level3e-mid: #EA6FB0;
-  --level3e-dark: #D14E92;
-  --level3e-text: #7A1E52;
-
-  /* Accueil 3e : Tuto (jaune clair) et Entraînement (mauve, réutilise évaluation) */
-  --tuto3e-light: #FFF9D6;
-  --tuto3e-mid: #FFE985;
-  --tuto3e-dark: #F2D452;
-  --tuto3e-text: #6B5900;
-
-  /* Sous-tutos 3e */
-  --tuto3e-classique-light: #C8E6A6;
-  --tuto3e-classique-mid: #6FAF3E;
-  --tuto3e-classique-dark: #4C8226;
-  --tuto3e-classique-text: #23400F;
-
-  --tuto3e-temps-light: #F5D6DE;
-  --tuto3e-temps-mid: #B23A57;
-  --tuto3e-temps-dark: #8A2942;
-  --tuto3e-temps-text: #4A0E1E;
-
-  --tuto3e-vitesse-light: #CBDAF6;
-  --tuto3e-vitesse-mid: #3E62A8;
-  --tuto3e-vitesse-dark: #2A477F;
-  --tuto3e-vitesse-text: #16294D;
-
-  /* Sous-modes Entraînement 3e */
-  --entrainement3e-classique-light: #C9F3DA;
-  --entrainement3e-classique-mid: #6FCF97;
-  --entrainement3e-classique-dark: #3FA873;
-  --entrainement3e-classique-text: #1E5B3C;
-
-  --entrainement3e-tv-light: #FFE9B8;
-  --entrainement3e-tv-mid: #FFC94D;
-  --entrainement3e-tv-dark: #E8A916;
-  --entrainement3e-tv-text: #6B4A00;
-
-  --eval3e-classique-light: #FFCBA0;
-  --eval3e-classique-mid: #FF8A3D;
-  --eval3e-classique-dark: #E86A1A;
-  --eval3e-classique-text: #5A2800;
-
-  --eval3e-experte-light: #FBC7C2;
-  --eval3e-experte-mid: #E85A50;
-  --eval3e-experte-dark: #C93F35;
-  --eval3e-experte-text: #5A0E09;
-
   /* Couleurs dédiées au texte des instructions du Tuto (bon contraste sur blanc) */
   --tuto-text-green: #2E9E5B;
   --tuto-text-red: #D9463B;
 
-  --theme-accent: var(--facile-mid);
+  --theme-accent: #5B6B82;
+  --bg-tint: linear-gradient(180deg, #FBFCFD 0%, #F6F8FA 55%, #EEF1F4 100%);
 
   --radius-lg: 26px;
   --radius-md: 16px;
@@ -112,6 +32,9 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Place de la barre de défilement toujours réservée : rien ne se décale d'une page à l'autre */
+html { scrollbar-gutter: stable; }
 
 html, body {
   margin: 0;
@@ -130,79 +53,83 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background: #F5F7FB;
-  transition: background 0.4s ease;
 }
 
-/* ===== Fond coloré, différent selon le mode actif ===== */
+/* ===== Fond "tableau Velleda", teinté selon la page active =====
+   Couches : écritures au feutre (SVG transparent) > reflet du tableau > teinte de la page.
+   Le fond est fixe et le motif est accroché en haut à gauche : seule la teinte change
+   d'une page à l'autre, le dessin ne bouge jamais (défilement, zoom, barre de défilement). */
 .bg-science {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  transition: background 0.4s ease;
-  background: linear-gradient(180deg, #F3FBF8 0%, #F5F3FE 50%, #FFF6EE 100%);
+  background:
+    url('img/velleda.svg') 0 0 / 1600px 1000px repeat,
+    linear-gradient(115deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0) 60%),
+    var(--bg-tint);
+}
+/* Sur téléphone : motif plus petit pour voir plus d'écritures */
+@media (max-width: 600px) {
+  .bg-science { background-size: 1040px 650px, auto, auto; }
+}
+/* Cadre en aluminium du tableau */
+.bg-science::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 5px #E3E7EC, inset 0 0 0 7px #C2C9D1, inset 0 0 18px 7px rgba(46, 58, 70, 0.08);
+}
+/* Halo blanc : les textes posés sur le tableau restent lisibles par-dessus les écritures */
+h1, .subtitle, .btn-text, .draft-title {
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.95), 0 0 10px rgba(255, 255, 255, 0.85);
 }
 
-body[data-theme="tuto"] .bg-science {
-  background: linear-gradient(180deg, #F4FAE8 0%, #E9F5D2 55%, #DEEFBC 100%);
+/* ===== Couleurs des boutons ; un mode de jeu partage sa couleur avec la page où il mène =====
+   --c-* : couleurs du bouton ; --bg-tint : teinte du tableau ; --theme-accent : accents de la page.
+   Les menus (accueil, Tutoriels, Entraînements, Challenge) gardent un tableau blanc. */
+.btn-tutoriels { --c-light: #FFF4BF; --c-mid: #FFD43B; --c-dark: #D9A800; --c-text: #4F3D00; }
+body[data-theme="tuto-classique"], .btn-tuto-classique {
+  --c-light: #FFFBE3; --c-mid: #FFEB8F; --c-dark: #E3C95A; --c-text: #5A4A00;
+  --bg-tint: linear-gradient(180deg, #FFFEF5 0%, #FFFADF 55%, #FFF4C2 100%);
+  --theme-accent: #C9A21C;
 }
-body[data-theme="facile"] .bg-science {
-  background: linear-gradient(180deg, #FFFBEA 0%, #FFF3C4 55%, #FFE9A8 100%);
+body[data-theme="tuto-temps"], .btn-tuto-temps {
+  --c-light: #FFF0E0; --c-mid: #FFC48F; --c-dark: #E89A58; --c-text: #6B3500;
+  --bg-tint: linear-gradient(180deg, #FFF8F1 0%, #FFEDDC 55%, #FFE0C4 100%);
+  --theme-accent: #E07F35;
 }
-body[data-theme="moyen"] .bg-science {
-  background: linear-gradient(180deg, #FFF3E2 0%, #FFE6C7 55%, #FFDBAE 100%);
+body[data-theme="tuto-vitesse"], .btn-tuto-vitesse {
+  --c-light: #FFE6E3; --c-mid: #F7A79F; --c-dark: #D9736A; --c-text: #6B1610;
+  --bg-tint: linear-gradient(180deg, #FFF5F4 0%, #FDE6E3 55%, #FAD3CE 100%);
+  --theme-accent: #D45449;
 }
-body[data-theme="evaluation"] .bg-science {
-  background: linear-gradient(180deg, #F5EEFC 0%, #EADCF7 55%, #DFCBF2 100%);
+.btn-entrainements { --c-light: #D4F7FB; --c-mid: #4DD2E2; --c-dark: #1BA5B6; --c-text: #053F47; }
+body[data-theme="train-n1"], .btn-train-n1 {
+  --c-light: #E3F3FD; --c-mid: #A3D5F5; --c-dark: #64AEDD; --c-text: #0D4466;
+  --bg-tint: linear-gradient(180deg, #F3FAFE 0%, #E1F1FC 55%, #CDE6F8 100%);
+  --theme-accent: #3E97D1;
 }
-body[data-theme="custom"] .bg-science {
-  background: linear-gradient(180deg, #EAF8FE 0%, #D6EFFA 55%, #C2E7F6 100%);
+body[data-theme="train-classique"], .btn-train-classique {
+  --c-light: #DCE3F7; --c-mid: #8299D8; --c-dark: #5770B6; --c-text: #132A5E;
+  --bg-tint: linear-gradient(180deg, #F0F3FB 0%, #DFE6F6 55%, #CBD5EF 100%);
+  --theme-accent: #4A63AE;
 }
-body[data-theme="tuto3e"] .bg-science {
-  background: linear-gradient(180deg, #FFFDF0 0%, #FFF7CE 55%, #FFF0A8 100%);
+body[data-theme="train-tv"], .btn-train-tv {
+  --c-light: #E8E3FA; --c-mid: #A999E8; --c-dark: #7F6BC9; --c-text: #2A1A66;
+  --bg-tint: linear-gradient(180deg, #F5F2FD 0%, #E8E2FA 55%, #D9CFF5 100%);
+  --theme-accent: #7461C2;
 }
-body[data-theme="entrainement3e"] .bg-science {
-  background: linear-gradient(180deg, #F5EEFC 0%, #EADCF7 55%, #DFCBF2 100%);
+.btn-challenge { --c-light: #FCDDF3; --c-mid: #EA6CC7; --c-dark: #C23F9E; --c-text: #4F0A3C; }
+body[data-theme="eval4e"] {
+  --bg-tint: linear-gradient(180deg, #F6F4FA 0%, #E9E5F2 55%, #DAD4E9 100%);
+  --theme-accent: #7A66AE;
 }
-body[data-theme="tuto3e-classique"] .bg-science {
-  background: linear-gradient(180deg, #F1F8E9 0%, #E1F0D2 55%, #D0E7B9 100%);
+body[data-theme="eval3e"] {
+  --bg-tint: linear-gradient(180deg, #FAF7EF 0%, #F1EAD8 55%, #E5DABD 100%);
+  --theme-accent: #B08A24;
 }
-body[data-theme="tuto3e-temps"] .bg-science {
-  background: linear-gradient(180deg, #FBEFF2 0%, #F5DCE3 55%, #EFC8D2 100%);
-}
-body[data-theme="tuto3e-vitesse"] .bg-science {
-  background: linear-gradient(180deg, #EEF2FB 0%, #DCE5F5 55%, #C9D6EF 100%);
-}
-body[data-theme="entrainement3e-classique"] .bg-science {
-  background: linear-gradient(180deg, #EAFBF1 0%, #DCF5E6 55%, #CDEFDC 100%);
-}
-body[data-theme="entrainement3e-tv"] .bg-science {
-  background: linear-gradient(180deg, #FFF8E6 0%, #FFEEC2 55%, #FFE2A0 100%);
-}
-body[data-theme="eval3e-classique"] .bg-science {
-  background: linear-gradient(180deg, #FFF1E6 0%, #FFDFC4 55%, #FFCBA0 100%);
-}
-body[data-theme="eval3e-experte"] .bg-science {
-  background: linear-gradient(180deg, #FDEEED 0%, #FBD9D6 55%, #F7C0BC 100%);
-}
-
-body[data-theme="tuto3e-vitesse"] { --theme-accent: var(--tuto3e-vitesse-dark); }
-body[data-theme="entrainement3e-classique"] { --theme-accent: var(--entrainement3e-classique-dark); }
-body[data-theme="entrainement3e-tv"] { --theme-accent: var(--entrainement3e-tv-dark); }
-body[data-theme="eval3e-classique"] { --theme-accent: var(--eval3e-classique-dark); }
-body[data-theme="eval3e-experte"] { --theme-accent: var(--eval3e-experte-dark); }
-
-body[data-theme="level3e"] { --theme-accent: var(--level3e-dark); }
-body[data-theme="tuto3e"] { --theme-accent: var(--tuto3e-dark); }
-body[data-theme="entrainement3e"] { --theme-accent: var(--evaluation-dark); }
-body[data-theme="tuto3e-classique"] { --theme-accent: var(--tuto3e-classique-dark); }
-body[data-theme="tuto3e-temps"] { --theme-accent: var(--tuto3e-temps-dark); }
-
-body[data-theme="tuto"] { --theme-accent: var(--tuto-dark); }
-body[data-theme="facile"] { --theme-accent: var(--facile-mid); }
-body[data-theme="moyen"] { --theme-accent: var(--moyen-mid); }
-body[data-theme="evaluation"] { --theme-accent: var(--evaluation-mid); }
-body[data-theme="custom"] { --theme-accent: var(--custom-mid); }
+.btn-custom { --c-light: #FFFFFF; --c-mid: #E8ECF1; --c-dark: #B9C3CF; --c-text: #2E3A46; }
 
 /* ===== Layout général (mobile d'abord) ===== */
 #app {
@@ -238,23 +165,20 @@ h1 {
 
 .subtitle { color: var(--ink-soft); font-size: 1rem; margin: 0 0 30px; font-weight: 700; }
 
-.mode-group + .mode-group { margin-top: 38px; }
+.menu-list { display: flex; flex-direction: column; gap: 20px; }
 
-.mode-caption {
-  text-align: left;
-  color: #000000;
-  font-size: 0.85rem;
-  font-weight: 800;
-  margin: 0 0 10px;
-}
-
-.levels-row {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* Accolades 4e / 3e à gauche des boutons (dessinées en SVG par app.js) */
+.menu-list--braced { position: relative; padding-left: 62px; }
+.menu-list--braced-2 { padding-left: 80px; }
+.braces { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.brace--4e { color: #1F262E; }
+.brace--3e { color: #7D8896; }
+.brace-line { fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.brace-label { fill: currentColor; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; text-anchor: end; dominant-baseline: central; }
 
 .diff-card {
+  position: relative;
+  overflow: hidden;
   font-family: var(--font-body);
   cursor: pointer;
   border: none;
@@ -268,147 +192,62 @@ h1 {
   justify-content: center;
   gap: 6px;
   text-align: left;
+  background: linear-gradient(90deg, var(--c-mid) 0%, var(--c-light) 100%);
+  color: var(--c-text);
+  box-shadow: 0 6px 0 var(--c-dark), 0 12px 20px color-mix(in srgb, var(--c-dark) 30%, transparent), inset 0 2px 0 rgba(255,255,255,0.55);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .diff-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.diff-card:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--c-dark), 0 6px 10px color-mix(in srgb, var(--c-dark) 26%, transparent), inset 0 2px 0 rgba(255,255,255,0.5);
+}
+/* Lueur douce au survol (boutons pastel) */
+.diff-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 160% at 15% 0%, rgba(255,255,255,0.4), rgba(255,255,255,0) 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.diff-card:hover::after { opacity: 1; }
+.diff-card > * { position: relative; z-index: 1; }
 
 .diff-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; }
 .diff-desc { font-size: 0.85rem; opacity: 0.85; line-height: 1.3; font-weight: 700; }
-/* Pastille "Meilleur score" des évaluations (mémorisé dans le navigateur) */
-.diff-best { font-size: 0.78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,0.55); }
+.diff-card--icon { padding-right: 78px; }
+.diff-card > .diff-ico { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; filter: drop-shadow(0 3px 3px rgba(46,58,70,0.18)); }
+
+/* Pastille "Meilleur temps" des évaluations (mémorisé dans le navigateur) */
+.diff-best { font-size: 0.78rem; font-weight: 800; padding: 3px 11px; border-radius: 999px; background: rgba(255,255,255,0.55); }
 .diff-best[hidden] { display: none; }
 
-/* Boutons "relief" colorés, un dégradé par mode */
-.diff-tuto {
-  background: linear-gradient(160deg, var(--tuto-light), var(--tuto-mid));
-  color: var(--tuto-text);
-  box-shadow: 0 6px 0 var(--tuto-dark), 0 12px 20px rgba(130, 184, 62, 0.3), inset 0 2px 0 rgba(255,255,255,0.55);
+/* Boutons métal du Challenge (texte blanc) */
+.metal { color: #FFFFFF; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+.metal .diff-desc { opacity: 0.92; }
+/* Reflet métallique net, qui glisse au survol */
+.metal::after {
+  background: linear-gradient(112deg, transparent 30%, rgba(255,255,255,0.55) 42%, rgba(255,255,255,0.12) 50%, transparent 58%);
+  opacity: 1;
+  transform: translateX(-30%);
+  transition: transform 0.7s ease;
 }
-.diff-facile {
-  background: linear-gradient(160deg, var(--facile-light), var(--facile-mid));
-  color: var(--facile-text);
-  box-shadow: 0 6px 0 var(--facile-dark), 0 12px 20px rgba(232, 185, 35, 0.32), inset 0 2px 0 rgba(255,255,255,0.6);
+.metal:hover::after { transform: translateX(30%); }
+.metal--violet {
+  --c-dark: #4E3F7A;
+  background: linear-gradient(160deg, #CFC6E8 0%, #8F7EC2 36%, #B9ADDC 54%, #6C5B9C 100%);
 }
-.diff-moyen {
-  background: linear-gradient(160deg, var(--moyen-light), var(--moyen-mid));
-  color: var(--moyen-text);
-  box-shadow: 0 6px 0 var(--moyen-dark), 0 12px 20px rgba(240, 140, 58, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
+.metal--violet .diff-best { background: rgba(255,255,255,0.22); color: #FFFFFF; }
+.metal--obsidian {
+  --c-dark: #8C6A1C;
+  background: linear-gradient(160deg, #4C463E 0%, #1E1C1A 38%, #3D372E 55%, #121110 100%);
+  box-shadow: 0 6px 0 var(--c-dark), 0 12px 22px rgba(0,0,0,0.32), inset 0 0 0 2px rgba(222,180,72,0.8), inset 0 2px 0 rgba(255,236,170,0.35);
 }
-.diff-evaluation {
-  background: linear-gradient(160deg, var(--evaluation-light), var(--evaluation-mid));
-  color: var(--evaluation-text);
-  box-shadow: 0 6px 0 var(--evaluation-dark), 0 12px 20px rgba(146, 104, 190, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.diff-custom {
-  background: linear-gradient(160deg, var(--custom-light), var(--custom-mid));
-  color: var(--custom-text);
-  box-shadow: 0 6px 0 var(--custom-dark), 0 12px 20px rgba(69, 166, 204, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.diff-tuto3e {
-  background: linear-gradient(160deg, var(--tuto3e-light), var(--tuto3e-mid));
-  color: var(--tuto3e-text);
-  box-shadow: 0 6px 0 var(--tuto3e-dark), 0 12px 20px rgba(242, 212, 82, 0.32), inset 0 2px 0 rgba(255,255,255,0.6);
-}
-.diff-entrainement3e {
-  background: linear-gradient(160deg, var(--evaluation-light), var(--evaluation-mid));
-  color: var(--evaluation-text);
-  box-shadow: 0 6px 0 var(--evaluation-dark), 0 12px 20px rgba(146, 104, 190, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-
-.diff-card:active {
-  transform: translateY(4px);
-}
-.diff-tuto:active { box-shadow: 0 2px 0 var(--tuto-dark), 0 6px 10px rgba(130, 184, 62, 0.26), inset 0 2px 0 rgba(255,255,255,0.5); }
-.diff-facile:active { box-shadow: 0 2px 0 var(--facile-dark), 0 6px 10px rgba(232, 185, 35, 0.28), inset 0 2px 0 rgba(255,255,255,0.55); }
-.diff-moyen:active { box-shadow: 0 2px 0 var(--moyen-dark), 0 6px 10px rgba(240, 140, 58, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-.diff-evaluation:active { box-shadow: 0 2px 0 var(--evaluation-dark), 0 6px 10px rgba(146, 104, 190, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-.diff-custom:active { box-shadow: 0 2px 0 var(--custom-dark), 0 6px 10px rgba(69, 166, 204, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-.diff-tuto3e:active { box-shadow: 0 2px 0 var(--tuto3e-dark), 0 6px 10px rgba(242, 212, 82, 0.28), inset 0 2px 0 rgba(255,255,255,0.55); }
-.diff-entrainement3e:active { box-shadow: 0 2px 0 var(--evaluation-dark), 0 6px 10px rgba(146, 104, 190, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-
-.diff-tuto3e-classique {
-  background: linear-gradient(160deg, var(--tuto3e-classique-light), var(--tuto3e-classique-mid));
-  color: var(--tuto3e-classique-text);
-  box-shadow: 0 6px 0 var(--tuto3e-classique-dark), 0 12px 20px rgba(76, 130, 38, 0.3), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.diff-tuto3e-classique:active { box-shadow: 0 2px 0 var(--tuto3e-classique-dark), 0 6px 10px rgba(76, 130, 38, 0.26), inset 0 2px 0 rgba(255,255,255,0.5); }
-
-.diff-tuto3e-temps {
-  background: linear-gradient(160deg, var(--tuto3e-temps-light), var(--tuto3e-temps-mid));
-  color: var(--tuto3e-temps-text);
-  box-shadow: 0 6px 0 var(--tuto3e-temps-dark), 0 12px 20px rgba(138, 41, 66, 0.3), inset 0 2px 0 rgba(255,255,255,0.5);
-}
-.diff-tuto3e-temps:active { box-shadow: 0 2px 0 var(--tuto3e-temps-dark), 0 6px 10px rgba(138, 41, 66, 0.26), inset 0 2px 0 rgba(255,255,255,0.45); }
-
-.diff-tuto3e-vitesse {
-  background: linear-gradient(160deg, var(--tuto3e-vitesse-light), var(--tuto3e-vitesse-mid));
-  color: var(--tuto3e-vitesse-text);
-  box-shadow: 0 6px 0 var(--tuto3e-vitesse-dark), 0 12px 20px rgba(42, 71, 127, 0.3), inset 0 2px 0 rgba(255,255,255,0.5);
-}
-.diff-tuto3e-vitesse:active { box-shadow: 0 2px 0 var(--tuto3e-vitesse-dark), 0 6px 10px rgba(42, 71, 127, 0.26), inset 0 2px 0 rgba(255,255,255,0.45); }
-
-.diff-entrainement3e-classique {
-  background: linear-gradient(160deg, var(--entrainement3e-classique-light), var(--entrainement3e-classique-mid));
-  color: var(--entrainement3e-classique-text);
-  box-shadow: 0 6px 0 var(--entrainement3e-classique-dark), 0 12px 20px rgba(63, 168, 115, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.diff-entrainement3e-classique:active { box-shadow: 0 2px 0 var(--entrainement3e-classique-dark), 0 6px 10px rgba(63, 168, 115, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-
-.diff-entrainement3e-tv {
-  background: linear-gradient(160deg, var(--entrainement3e-tv-light), var(--entrainement3e-tv-mid));
-  color: var(--entrainement3e-tv-text);
-  box-shadow: 0 6px 0 var(--entrainement3e-tv-dark), 0 12px 20px rgba(232, 169, 22, 0.3), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.diff-entrainement3e-tv:active { box-shadow: 0 2px 0 var(--entrainement3e-tv-dark), 0 6px 10px rgba(232, 169, 22, 0.26), inset 0 2px 0 rgba(255,255,255,0.5); }
-
-.diff-eval3e-classique {
-  background: linear-gradient(160deg, var(--eval3e-classique-light), var(--eval3e-classique-mid));
-  color: var(--eval3e-classique-text);
-  box-shadow: 0 6px 0 var(--eval3e-classique-dark), 0 12px 20px rgba(232, 106, 26, 0.3), inset 0 2px 0 rgba(255,255,255,0.5);
-}
-.diff-eval3e-classique:active { box-shadow: 0 2px 0 var(--eval3e-classique-dark), 0 6px 10px rgba(232, 106, 26, 0.26), inset 0 2px 0 rgba(255,255,255,0.45); }
-
-.diff-eval3e-experte {
-  background: linear-gradient(160deg, var(--eval3e-experte-light), var(--eval3e-experte-mid));
-  color: var(--eval3e-experte-text);
-  box-shadow: 0 6px 0 var(--eval3e-experte-dark), 0 12px 20px rgba(201, 63, 53, 0.3), inset 0 2px 0 rgba(255,255,255,0.5);
-}
-.diff-eval3e-experte:active { box-shadow: 0 2px 0 var(--eval3e-experte-dark), 0 6px 10px rgba(201, 63, 53, 0.26), inset 0 2px 0 rgba(255,255,255,0.45); }
-
-/* ===== Page de choix de niveau ===== */
-.level-card {
-  font-family: var(--font-body);
-  cursor: pointer;
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 26px 24px;
-  width: 100%;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
-  text-align: left;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-.level-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.level-card .diff-name { font-size: 1.35rem; }
-.level-card:active { transform: translateY(4px); }
-
-.level-4e {
-  background: linear-gradient(160deg, var(--level4e-light), var(--level4e-mid));
-  color: var(--level4e-text);
-  box-shadow: 0 6px 0 var(--level4e-dark), 0 12px 20px rgba(69, 166, 204, 0.28), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.level-4e:active { box-shadow: 0 2px 0 var(--level4e-dark), 0 6px 10px rgba(69, 166, 204, 0.24), inset 0 2px 0 rgba(255,255,255,0.5); }
-
-.level-3e {
-  background: linear-gradient(160deg, var(--level3e-light), var(--level3e-mid));
-  color: var(--level3e-text);
-  box-shadow: 0 6px 0 var(--level3e-dark), 0 12px 20px rgba(209, 78, 146, 0.3), inset 0 2px 0 rgba(255,255,255,0.55);
-}
-.level-3e:active { box-shadow: 0 2px 0 var(--level3e-dark), 0 6px 10px rgba(209, 78, 146, 0.26), inset 0 2px 0 rgba(255,255,255,0.5); }
+.metal--obsidian:active { box-shadow: 0 2px 0 var(--c-dark), 0 6px 10px rgba(0,0,0,0.28), inset 0 0 0 2px rgba(222,180,72,0.8); }
+.metal--obsidian .diff-name { color: #FFE39A; }
+.metal--obsidian .diff-best { background: rgba(222,180,72,0.25); color: #FFE7A3; }
 
 .home-back { margin-bottom: 14px; align-self: flex-start; text-align: left; }
 
@@ -739,27 +578,101 @@ h1 {
 .arrow-green { color: var(--tuto-text-green); }
 .arrow-red { color: var(--tuto-text-red); }
 
-/* ===== Récapitulatif (Évaluation) ===== */
-.recap-card {
+/* ===== Chrono : pénalité d'erreur ===== */
+.chrono.penalty { animation: penalty 0.7s ease; }
+@keyframes penalty { 0%, 30% { background: var(--error-bg); color: var(--error); transform: scale(1.12); } 100% { transform: none; } }
+
+/* ===== Résultats du Challenge : médaille, temps moyen, record ===== */
+.results {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border-top: 6px solid var(--theme-accent);
-  padding: 38px 22px;
+  padding: 30px 22px 34px;
   text-align: center;
   box-shadow: var(--shadow-card);
 }
-.recap-card.festive { background: linear-gradient(135deg, #F5EEFC, #EAF8FE); }
-#recap-title { font-family: var(--font-display); font-size: 1.6rem; margin: 0 0 16px; }
-.recap-score { font-family: var(--font-mono); font-size: 1.25rem; margin: 6px 0; font-weight: 700; }
-.recap-time { font-family: var(--font-mono); font-size: 1rem; margin: 6px 0; color: var(--ink-soft); }
-.recap-message { font-weight: 800; font-size: 1.05rem; margin: 18px 0 4px; }
-.recap-message.green { color: var(--success); }
-.recap-message.yellow { color: var(--warning); }
-.recap-message.red { color: var(--error); }
-.recap-best { margin: 14px 0 0; font-weight: 700; color: var(--ink-soft); }
-.recap-best:empty { display: none; }
-.recap-best.record { display: inline-block; padding: 6px 16px; border-radius: 999px; font-weight: 800; color: #6A4D00; background: linear-gradient(160deg, #FFF8D0, #FFD54A); box-shadow: 0 3px 0 #D49A12; }
-.recap-actions { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+.results h1 { margin: 14px 0 4px; text-shadow: none; }
+.res-avg { margin: 0; font-family: var(--font-display); font-size: 1.15rem; }
+.res-avg b { font-size: 2.8rem; color: var(--theme-accent); }
+.res-msg { margin: 8px auto 12px; max-width: 40ch; color: var(--ink-soft); font-weight: 700; line-height: 1.4; }
+.res-record { display: inline-block; margin: 0 0 14px; padding: 6px 16px; border-radius: 999px; font-weight: 800; color: #6A4D00; background: linear-gradient(160deg, #FFF8D0, #FFD54A); box-shadow: 0 3px 0 #D49A12; animation: pop 0.5s 0.6s cubic-bezier(.34,1.56,.64,1) both; }
+.res-best { margin: 0 0 14px; font-weight: 700; color: var(--ink-soft); }
+.res-details { width: 100%; max-width: 340px; margin: 6px auto 0; border-collapse: collapse; font-size: 0.95rem; }
+.res-details th { text-align: left; font-weight: 700; padding: 7px 4px; }
+.res-details td { text-align: right; font-family: var(--font-mono); font-weight: 700; padding: 7px 4px; }
+.res-details tr + tr > * { border-top: 1px dashed rgba(46,58,70,0.18); }
+.res-nomedal { font-size: 4.2rem; line-height: 1; margin-top: 8px; filter: grayscale(0.4); }
+.results-actions { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Banderole (médaille de platine) */
+.res-banner { position: relative; display: inline-block; margin: 0 auto 6px; padding: 0 30px; animation: pop 0.6s 0.3s cubic-bezier(.34,1.56,.64,1) both; }
+.res-banner span {
+  position: relative; z-index: 1; display: block; padding: 10px 26px; font-family: var(--font-display); font-weight: 700; font-size: clamp(1rem, 4.4vw, 1.35rem); color: #fff;
+  background: linear-gradient(180deg, #E0584C, #B8342A); text-shadow: 0 2px 0 rgba(0,0,0,0.25); box-shadow: 0 6px 14px rgba(120,20,10,0.3), inset 0 2px 0 rgba(255,255,255,0.35);
+}
+.res-banner::before, .res-banner::after {
+  content: ''; position: absolute; top: 12px; width: 44px; height: 100%; background: #9C2A21;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 30% 50%);
+}
+.res-banner::before { left: 0; }
+.res-banner::after { right: 0; transform: scaleX(-1); }
+
+/* Médailles : métal poli, reflet qui balaie, étincelles */
+.medal { position: relative; width: 150px; height: 190px; margin: 6px auto 0; --m1: #FFF8D0; --m2: #FFD54A; --m3: #D49A12; --m4: #8A5F00; --rb1: #2F6FD6; --rb2: #1E4FA8; animation: medal-in 0.9s cubic-bezier(.34,1.56,.64,1) both; }
+.medal--bronze  { --m1: #FFE6CC; --m2: #E8A066; --m3: #A9622C; --m4: #643410; --rb1: #2E9E6B; --rb2: #1D7049; }
+.medal--argent  { --m1: #FFFFFF; --m2: #DCE3EB; --m3: #9AA6B4; --m4: #56606D; --rb1: #D6453A; --rb2: #A52D24; }
+.medal--or      { --m1: #FFFBE0; --m2: #FFD54A; --m3: #D49A12; --m4: #7E5400; --rb1: #2F6FD6; --rb2: #1E4FA8; }
+.medal--platine { --m1: #FFFFFF; --m2: #EEF4FA; --m3: #B5C4D6; --m4: #6F8098; --rb1: #6B3FC6; --rb2: #47258F; }
+.medal__ribbon {
+  position: absolute; left: 50%; top: 0; width: 52%; height: 46%; transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--rb2) 0 18%, var(--rb1) 18% 40%, #fff 40% 60%, var(--rb1) 60% 82%, var(--rb2) 82%);
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.25));
+}
+.medal__disc {
+  position: absolute; left: 0; bottom: 0; width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255,255,255,0.95) 0, rgba(255,255,255,0) 26%),
+    conic-gradient(from 20deg, var(--m1), var(--m2) 12%, var(--m3) 25%, var(--m2) 37%, var(--m1) 50%, var(--m2) 62%, var(--m3) 75%, var(--m2) 87%, var(--m1));
+  box-shadow: 0 0 0 4px var(--m3), 0 0 0 7px var(--m1), 0 0 0 9px var(--m4), 0 14px 28px rgba(0,0,0,0.35), 0 0 46px var(--m2);
+}
+.medal__ring {
+  position: absolute; inset: 14%; border-radius: 50%;
+  background:
+    radial-gradient(circle at 65% 75%, rgba(0,0,0,0.18), transparent 55%),
+    conic-gradient(from 200deg, var(--m2), var(--m1) 15%, var(--m3) 35%, var(--m2) 55%, var(--m1) 70%, var(--m3) 88%, var(--m2));
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.35), inset 0 -3px 5px rgba(255,255,255,0.7), 0 0 0 2px var(--m1);
+}
+.medal__star {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; line-height: 1; color: var(--m2);
+  text-shadow: 0 -2px 0 var(--m1), 0 2px 0 var(--m4), 0 0 14px rgba(255,255,255,0.8);
+}
+.medal__shine {
+  position: absolute; inset: -20%; pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.95) 47%, rgba(255,255,255,0.2) 53%, transparent 60%);
+  animation: medal-shine 2.6s ease-in-out infinite;
+}
+.medal--platine .medal__disc::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; mix-blend-mode: overlay; opacity: 0.55; pointer-events: none;
+  background: conic-gradient(from 0deg, #ffd6f2, #d6e8ff, #d6fff0, #fff6d0, #ffd6f2);
+  animation: spin 6s linear infinite;
+}
+.medal__spark {
+  position: absolute; width: 22px; height: 22px; background: #fff; pointer-events: none;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  filter: drop-shadow(0 0 6px #fff); animation: twinkle 1.8s ease-in-out infinite;
+}
+.medal__spark:nth-of-type(1) { left: 6%; bottom: 52%; }
+.medal__spark:nth-of-type(2) { right: 4%; bottom: 22%; width: 16px; height: 16px; animation-delay: 0.6s; }
+.medal__spark:nth-of-type(3) { left: 58%; bottom: 6%; width: 12px; height: 12px; animation-delay: 1.2s; }
+@keyframes medal-shine { 0% { transform: translateX(-70%); } 55%, 100% { transform: translateX(70%); } }
+@keyframes twinkle { 0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+@keyframes medal-in { 0% { transform: scale(0.2) rotate(-25deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .medal, .medal__shine, .medal__spark, .medal--platine .medal__disc::after, .res-banner, .res-record { animation: none; }
+}
 
 /* ===== Tableau brouillon (9 colonnes) ===== */
 .draft-wrap { width: 100%; max-width: 520px; margin-top: 26px; }
@@ -825,17 +738,13 @@ h1 {
 
 /* ===== Écrans plus larges (tablette / desktop) ===== */
 @media (min-width: 640px) {
-  #screen-home { max-width: 720px; }
-
   .diff-card { padding: 26px 26px; min-height: 108px; }
+  .diff-card--icon { padding-right: 84px; }
   .diff-name { font-size: 1.3rem; }
   .diff-desc { font-size: 0.9rem; }
 
-  .levels-row { flex-direction: row; gap: 18px; }
-  .levels-row .diff-card { flex: 1; }
-
   .exercise-card { padding: 44px 32px; }
-  .recap-actions { flex-direction: row; justify-content: center; }
+  .results-actions { flex-direction: row; justify-content: center; }
   .custom-line { flex-direction: row; justify-content: center; }
   .custom-arrow { transform: none; }
   .draft-row { min-width: 0; }

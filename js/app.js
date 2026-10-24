@@ -1,16 +1,16 @@
 // app.js
-// Contrôleur principal : navigation entre écrans, logique d'un exercice
-// généré (facile / moyen / évaluation), logique du mode Custom, logique du
-// mode Tuto guidé, chronomètre et score.
+// Contrôleur principal : navigation entre les menus (Tutoriels, Entraînements,
+// Challenge, Custom), logique d'un exercice généré (niveau 1 / classique /
+// évaluation), logique du mode Custom, des Tutos guidés, du Challenge
+// chronométré (médailles et records) et score.
 
 (function () {
   // --- Références DOM communes ---
   const screens = {
-    levelSelect: document.getElementById('screen-level-select'),
     home: document.getElementById('screen-home'),
-    home3e: document.getElementById('screen-home-3e'),
-    tuto3eMenu: document.getElementById('screen-tuto3e-menu'),
-    entrainement3eMenu: document.getElementById('screen-entrainement3e-menu'),
+    tutoMenu: document.getElementById('screen-tuto-menu'),
+    trainMenu: document.getElementById('screen-train-menu'),
+    challenge: document.getElementById('screen-challenge'),
     mixedReady: document.getElementById('screen-mixed-ready'),
     mixed: document.getElementById('screen-mixed'),
     exercise: document.getElementById('screen-exercise'),
@@ -18,21 +18,18 @@
     tuto: document.getElementById('screen-tuto'),
     tutoTemps: document.getElementById('screen-tuto-temps'),
     tutoVitesse: document.getElementById('screen-tuto-vitesse'),
-    recap: document.getElementById('screen-recap')
+    results: document.getElementById('screen-results')
   };
 
-  const levelCards = document.querySelectorAll('.level-card');
-  const btnToLevelSelect = document.getElementById('btn-to-level-select');
-  const btnToLevelSelect3e = document.getElementById('btn-to-level-select-3e');
-  const btnBackTuto3eMenu = document.getElementById('btn-back-tuto3e-menu');
-  const btnBackEntrainement3eMenu = document.getElementById('btn-back-entrainement3e-menu');
-
-  const diffCards = document.querySelectorAll('.diff-card');
+  const diffCards = document.querySelectorAll('.diff-card[data-diff]');
+  const navButtons = document.querySelectorAll('[data-nav], [data-back]');
   const btnBack = document.getElementById('btn-back');
   const btnBackCustom = document.getElementById('btn-back-custom');
   const btnBackTuto = document.getElementById('btn-back-tuto');
   const chronoEl = document.getElementById('chrono');
   const chronoValueEl = document.getElementById('chrono-value');
+  const evalProgressEl = document.getElementById('eval-progress');
+  const evalProgressValueEl = document.getElementById('eval-progress-value');
   const scoreDisplayEl = document.getElementById('score-display');
   const scoreValueEl = document.getElementById('score-value');
 
@@ -45,14 +42,7 @@
   const btnNext = document.getElementById('btn-next');
   const feedbackEl = document.getElementById('feedback');
 
-  const recapTitle = document.getElementById('recap-title');
-  const recapScore = document.getElementById('recap-score');
-  const recapTime = document.getElementById('recap-time');
-  const recapMessage = document.getElementById('recap-message');
-  const recapCard = document.getElementById('recap-card');
-  const recapBest = document.getElementById('recap-best');
-  const btnRestart = document.getElementById('btn-restart');
-  const btnHome = document.getElementById('btn-home');
+  const resultsEl = document.getElementById('results');
 
   const draftWrap = document.getElementById('draft-table-wrap');
   const draftTableEl = document.getElementById('draft-table');
@@ -131,6 +121,8 @@
   const btnBackMixed = document.getElementById('btn-back-mixed');
   const mixedChronoEl = document.getElementById('mixed-chrono');
   const mixedChronoValueEl = document.getElementById('mixed-chrono-value');
+  const mixedEvalProgressEl = document.getElementById('mixed-eval-progress');
+  const mixedEvalProgressValueEl = document.getElementById('mixed-eval-progress-value');
   const mixedScoreDisplayEl = document.getElementById('mixed-score-display');
   const mixedScoreValueEl = document.getElementById('mixed-score-value');
   const mixedFromValueEl = document.getElementById('mixed-from-value');
@@ -167,16 +159,11 @@
   let hasFailedOnce = false;
   let advanceTimeoutId = null;
   let chronoIntervalId = null;
-  let questionStart = 0;
-  let evalStats = { count: 0, correctCount: 0, times: [] };
-  let evalKey = 'evaluation'; // data-diff de l'évaluation en cours (clé du meilleur score)
   let sessionScore = { correct: 0, total: 0 };
   let customRevealed = false;
 
   let tutoConversion = null;
   let tutoStep = 1;
-  let tutoReturnScreen = 'home';
-  let customReturnScreen = 'home';
 
   let ttConversion = null;
   let ttStep = 1;
@@ -191,8 +178,6 @@
   let mixedCurrent = null;
   let mixedFailedOnce = false;
   let mixedScore = { correct: 0, total: 0 };
-  let mixedQuestionStart = 0;
-  let mixedChronoIntervalId = null;
   let mixedTypeQueue = [];
   let pendingMixedStart = null; // 'entrainement' | 'evaluation'
 
@@ -236,9 +221,108 @@
   attachNumericSanitizer(tvAnswerInput);
   attachNumericSanitizer(mixedAnswerInput);
 
-  // --- Meilleurs scores des évaluations, mémorisés dans le navigateur ---
-  // Meilleur = plus de bonnes réponses ; à score égal, temps moyen le plus court.
-  const BEST_KEY = 'conv-eval-best';
+  // ===================================================================
+  //  Challenge : 5 conversions réussies, +5 s par erreur, médailles
+  // ===================================================================
+
+  const EVAL_GOAL = 5;
+  const EVAL_PENALTY = 5;
+  // Seuils de temps moyen par conversion (erreurs comprises), du plus facile au plus dur
+  const MEDAL_TIERS = {
+    eval4e: [{ id: 'bronze', max: 60 }, { id: 'argent', max: 30 }, { id: 'or', max: 20 }, { id: 'platine', max: 8 }],
+    eval3e: [{ id: 'bronze', max: 80 }, { id: 'argent', max: 40 }, { id: 'or', max: 20 }, { id: 'platine', max: 8 }]
+  };
+  const MEDAL_INFO = {
+    bronze: { name: 'de bronze', icon: '🥉' },
+    argent: { name: 'd\'argent', icon: '🥈' },
+    or: { name: 'd\'or', icon: '🥇' },
+    platine: { name: 'de platine', icon: '💎' }
+  };
+
+  // Évaluation en cours : { key, ui, successes, errors, skips, time, penalty, questionStart, restart }
+  let evalRun = null;
+
+  function formatSeconds(x) {
+    return x.toFixed(1).replace('.', ',') + ' s';
+  }
+
+  // Meilleure médaille obtenue pour ce temps moyen (null si aucune)
+  function medalFor(key, avg) {
+    const won = MEDAL_TIERS[key].filter((t) => avg < t.max);
+    return won.length ? won[won.length - 1] : null;
+  }
+
+  function startEvalRun(key, ui, restart) {
+    evalRun = { key, ui, successes: 0, errors: 0, skips: 0, time: 0, penalty: 0, questionStart: 0, restart };
+    ui.chrono.classList.remove('hidden');
+    ui.progress.classList.remove('hidden');
+    updateEvalProgress();
+    updateEvalChrono();
+  }
+
+  // Temps affiché = temps passé sur les conversions + pénalités
+  function evalElapsed() {
+    const current = evalRun.questionStart ? (performance.now() - evalRun.questionStart) / 1000 : 0;
+    return evalRun.time + evalRun.penalty + current;
+  }
+
+  function updateEvalChrono() {
+    evalRun.ui.chronoValue.textContent = formatSeconds(evalElapsed());
+  }
+
+  function updateEvalProgress() {
+    evalRun.ui.progressValue.textContent = evalRun.successes + '/' + EVAL_GOAL;
+  }
+
+  function startEvalQuestion() {
+    evalRun.questionStart = performance.now();
+    updateEvalChrono();
+    chronoIntervalId = setInterval(updateEvalChrono, 100);
+  }
+
+  // Arrête le chrono de la conversion en cours (il est figé pendant les transitions)
+  function stopEvalQuestion() {
+    if (chronoIntervalId) {
+      clearInterval(chronoIntervalId);
+      chronoIntervalId = null;
+    }
+    if (evalRun.questionStart) {
+      evalRun.time += (performance.now() - evalRun.questionStart) / 1000;
+      evalRun.questionStart = 0;
+    }
+    updateEvalChrono();
+  }
+
+  function penalizeEval() {
+    evalRun.errors += 1;
+    evalRun.penalty += EVAL_PENALTY;
+    updateEvalChrono();
+    const el = evalRun.ui.chrono;
+    el.classList.remove('penalty');
+    void el.offsetWidth;
+    el.classList.add('penalty');
+  }
+
+  // Conversion réussie : renvoie true quand les 5 sont faites
+  function evalSucceeded() {
+    stopEvalQuestion();
+    evalRun.successes += 1;
+    updateEvalProgress();
+    return evalRun.successes >= EVAL_GOAL;
+  }
+
+  // Conversion passée : elle ne compte pas, une autre la remplace
+  function evalSkipped() {
+    stopEvalQuestion();
+    evalRun.skips += 1;
+  }
+
+  function hideEvalUi() {
+    [chronoEl, evalProgressEl, mixedChronoEl, mixedEvalProgressEl].forEach((el) => el.classList.add('hidden'));
+  }
+
+  // --- Records du Challenge, mémorisés dans le navigateur (meilleur = temps moyen le plus court) ---
+  const BEST_KEY = 'conv-challenge-best';
 
   function readBestScores() {
     try {
@@ -257,31 +341,82 @@
   }
 
   function formatBest(best) {
-    return best.score + '/5 en ' + best.avg.toFixed(1) + ' s en moyenne';
+    return formatSeconds(best.avg) + ' par conversion' + (best.medal ? ' ' + MEDAL_INFO[best.medal].icon : '');
   }
 
   function renderBestScores() {
     const all = readBestScores();
-    document.querySelectorAll('.diff-card[data-diff]').forEach((card) => {
+    diffCards.forEach((card) => {
       const badge = card.querySelector('.diff-best');
       if (!badge) return;
       const best = all[card.dataset.diff];
-      badge.textContent = best ? '🏆 Meilleur score : ' + formatBest(best) : '';
+      badge.textContent = best ? '🏆 Record : ' + formatBest(best) : '';
       badge.hidden = !best;
     });
   }
 
   // Enregistre le résultat s'il bat le record ; renvoie true si nouveau record.
-  function saveBestScore(key, score, avg) {
+  function saveBestScore(key, avg, medal) {
     const all = readBestScores();
     const best = all[key];
-    const isRecord = !best || score > best.score || (score === best.score && avg < best.avg);
+    const isRecord = !best || avg < best.avg;
     if (isRecord) {
-      all[key] = { score: score, avg: avg, date: new Date().toISOString() };
+      all[key] = { avg: avg, medal: medal ? medal.id : null, date: new Date().toISOString() };
       writeBestScores(all);
       renderBestScores();
     }
     return isRecord;
+  }
+
+  function medalHtml(medal) {
+    if (!medal) return '<div class="res-nomedal" aria-hidden="true">🎗️</div>';
+    return '<div class="medal medal--' + medal.id + '" role="img" aria-label="Médaille ' + MEDAL_INFO[medal.id].name + '">' +
+      '<span class="medal__ribbon"></span><span class="medal__disc"><span class="medal__ring"></span><span class="medal__star">★</span><span class="medal__shine"></span></span>' +
+      '<i class="medal__spark"></i><i class="medal__spark"></i><i class="medal__spark"></i></div>';
+  }
+
+  // Les seuils restent secrets : on encourage sans jamais dire le temps à atteindre
+  function resultsMessage(medal) {
+    if (!medal) return 'Entraîne-toi encore et retente ta chance : une médaille t\'attend peut-être !';
+    if (medal.id === 'platine') return 'Performance exceptionnelle ! Tu maîtrises parfaitement les conversions. Félicitations !';
+    return 'Bravo ! Va encore plus vite pour décrocher une médaille encore plus belle.';
+  }
+
+  function showResults() {
+    clearPendingTimers();
+    hideEvalUi();
+
+    const r = evalRun;
+    const total = r.time + r.penalty;
+    const avg = total / EVAL_GOAL;
+    const medal = medalFor(r.key, avg);
+    const previousBest = readBestScores()[r.key];
+    const isRecord = saveBestScore(r.key, avg, medal);
+
+    resultsEl.innerHTML =
+      (medal && medal.id === 'platine' ? '<div class="res-banner"><span>Champion des conversions !</span></div>' : '') +
+      medalHtml(medal) +
+      '<h1>' + (medal ? 'Médaille ' + MEDAL_INFO[medal.id].name + ' !' : 'Pas de médaille cette fois') + '</h1>' +
+      '<p class="res-avg"><b>' + formatSeconds(avg).replace(' s', '') + '</b> s par conversion</p>' +
+      '<p class="res-msg">' + resultsMessage(medal) + '</p>' +
+      (isRecord ? '<p class="res-record">🏆 Nouveau record !</p>' : '<p class="res-best">Ton record : ' + formatBest(previousBest) + '</p>') +
+      '<table class="res-details"><tbody>' +
+      '<tr><th>Temps total</th><td>' + formatSeconds(total) + '</td></tr>' +
+      '<tr><th>Erreurs (+' + EVAL_PENALTY + ' s chacune)</th><td>' + r.errors + '</td></tr>' +
+      '<tr><th>Conversions passées</th><td>' + r.skips + '</td></tr>' +
+      '</tbody></table>' +
+      '<div class="results-actions">' +
+      '<button class="btn-primary" data-do="again" type="button">Rejouer</button>' +
+      '<button class="btn-secondary" data-do="back" type="button">Retour au Challenge</button>' +
+      '</div>';
+
+    showScreen('results');
+    if (medal) {
+      setTimeout(() => {
+        safeBurstConfetti();
+        if (medal.id === 'platine') setTimeout(safeBurstConfetti, 900);
+      }, 400);
+    }
   }
 
   // --- Navigation entre écrans ---
@@ -291,6 +426,7 @@
     });
     const showTable = name === 'exercise' || name === 'custom' || name === 'tuto';
     draftWrap.classList.toggle('hidden', !showTable);
+    window.scrollTo(0, 0);
   }
 
   function clearPendingTimers() {
@@ -304,38 +440,24 @@
     }
   }
 
-  function goHome() {
+  // Retour à un menu (accueil, Tutoriels, Entraînements, Challenge) : tableau blanc
+  function goToMenu(name) {
     clearPendingTimers();
-    chronoEl.classList.add('hidden');
+    hideEvalUi();
     scoreDisplayEl.classList.add('hidden');
+    mixedScoreDisplayEl.classList.add('hidden');
     setTheme('');
-    showScreen('home');
+    showScreen(name);
   }
 
-  function goToLevelSelect() {
-    clearPendingTimers();
-    chronoEl.classList.add('hidden');
-    scoreDisplayEl.classList.add('hidden');
-    setTheme('');
-    showScreen('levelSelect');
-  }
-
-  function goToHome3e() {
-    clearPendingTimers();
-    chronoEl.classList.add('hidden');
-    scoreDisplayEl.classList.add('hidden');
-    setTheme('level3e');
-    showScreen('home3e');
-  }
-
-  // Applique une couleur de fond différente selon le mode actif (pur habillage,
+  // Applique la teinte du tableau propre à la page active (pur habillage,
   // n'affecte aucune logique de jeu).
   function setTheme(name) {
     document.body.dataset.theme = name;
   }
 
   // ===================================================================
-  //  Modes générés : Facile / Moyen / Évaluation
+  //  Modes générés : Niveau 1 / Entraînement classique / Évaluation 4e
   // ===================================================================
 
   function updateScoreDisplay() {
@@ -344,7 +466,6 @@
 
   let exerciseReturnScreen = 'home';
   let exerciseCategoryPool = null;
-  let recapRestartFn = null;
 
   function startSession(level, opts) {
     opts = opts || {};
@@ -352,21 +473,16 @@
     exerciseReturnScreen = opts.returnTo || 'home';
     exerciseCategoryPool = opts.categoryPool || null;
     setTheme(opts.theme || level);
-    recapRestartFn = () => startSession(level, opts);
+    hideEvalUi();
 
     if (level === 'evaluation') {
-      evalStats = { count: 0, correctCount: 0, times: [] };
-      evalKey = opts.evalKey || 'evaluation';
-      chronoEl.classList.remove('hidden');
       scoreDisplayEl.classList.add('hidden');
-    } else if (level === 'facile' || level === 'moyen') {
+      startEvalRun(opts.evalKey, { chrono: chronoEl, chronoValue: chronoValueEl, progress: evalProgressEl, progressValue: evalProgressValueEl },
+        () => startSession(level, opts));
+    } else {
       sessionScore = { correct: 0, total: 0 };
       updateScoreDisplay();
-      chronoEl.classList.add('hidden');
       scoreDisplayEl.classList.remove('hidden');
-    } else {
-      chronoEl.classList.add('hidden');
-      scoreDisplayEl.classList.add('hidden');
     }
 
     showScreen('exercise');
@@ -374,16 +490,7 @@
   }
 
   function goToReturnScreen() {
-    clearPendingTimers();
-    chronoEl.classList.add('hidden');
-    scoreDisplayEl.classList.add('hidden');
-    if (exerciseReturnScreen === 'entrainement3eMenu') {
-      setTheme('');
-      showScreen('entrainement3eMenu');
-    } else {
-      setTheme('');
-      showScreen('home');
-    }
+    goToMenu(exerciseReturnScreen);
   }
 
   function loadNewConversion() {
@@ -406,6 +513,7 @@
     btnValidate.disabled = false;
     btnValidate.classList.remove('hidden');
     btnNext.classList.add('hidden');
+    btnNext.textContent = currentLevel === 'evaluation' ? 'Passer cette conversion' : 'Conversion suivante';
 
     btnHint.classList.toggle('hidden', currentLevel !== 'facile');
     btnHint.disabled = false;
@@ -413,16 +521,7 @@
     feedbackEl.textContent = '';
     feedbackEl.className = 'feedback';
 
-    if (currentLevel === 'evaluation') {
-      questionStart = performance.now();
-      updateChrono();
-      chronoIntervalId = setInterval(updateChrono, 100);
-    }
-  }
-
-  function updateChrono() {
-    const elapsed = (performance.now() - questionStart) / 1000;
-    chronoValueEl.textContent = elapsed.toFixed(1) + ' s';
+    if (currentLevel === 'evaluation') startEvalQuestion();
   }
 
   function onHintClick() {
@@ -454,22 +553,18 @@
     btnNext.classList.add('hidden');
     btnHint.disabled = true;
 
+    let finished = false;
     if (currentLevel === 'evaluation') {
-      clearInterval(chronoIntervalId);
-      chronoIntervalId = null;
-      const elapsed = (performance.now() - questionStart) / 1000;
-      evalStats.times.push(elapsed);
-      evalStats.correctCount += 1;
-      evalStats.count += 1;
-    } else if (currentLevel === 'facile' || currentLevel === 'moyen') {
+      finished = evalSucceeded();
+    } else {
       sessionScore.total += 1;
       if (!hasFailedOnce) sessionScore.correct += 1;
       updateScoreDisplay();
     }
 
     advanceTimeoutId = setTimeout(() => {
-      if (currentLevel === 'evaluation' && evalStats.count >= 5) {
-        showRecap();
+      if (finished) {
+        showResults();
       } else {
         loadNewConversion();
       }
@@ -483,6 +578,10 @@
     answerInput.classList.add('wrong');
     feedbackEl.textContent = 'Ce n\'est pas la bonne réponse, réessaie !';
     feedbackEl.className = 'feedback error';
+    if (currentLevel === 'evaluation') {
+      penalizeEval();
+      feedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
+    }
     hasFailedOnce = true;
     btnNext.classList.remove('hidden');
     answerInput.focus();
@@ -503,72 +602,16 @@
     feedbackEl.className = 'feedback info';
 
     if (currentLevel === 'evaluation') {
-      clearInterval(chronoIntervalId);
-      chronoIntervalId = null;
-      const elapsed = (performance.now() - questionStart) / 1000;
-      evalStats.times.push(elapsed);
-      evalStats.count += 1;
-    } else if (currentLevel === 'facile' || currentLevel === 'moyen') {
+      evalSkipped();
+    } else {
       sessionScore.total += 1; // ratée puis résolue (ou passée) = comptée comme une erreur
       updateScoreDisplay();
     }
 
     advanceTimeoutId = setTimeout(() => {
       btnNext.disabled = false;
-      if (currentLevel === 'evaluation' && evalStats.count >= 5) {
-        showRecap();
-      } else {
-        loadNewConversion();
-      }
+      loadNewConversion();
     }, 2000);
-  }
-
-  function showRecap() {
-    clearPendingTimers();
-    chronoEl.classList.add('hidden');
-    mixedChronoEl.classList.add('hidden');
-
-    const avg = evalStats.times.reduce((a, b) => a + b, 0) / evalStats.times.length;
-    const score = evalStats.correctCount;
-
-    recapScore.textContent = 'Score : ' + score + '/5';
-    recapTime.textContent = 'Temps moyen par conversion : ' + avg.toFixed(1) + ' s';
-
-    const previousBest = readBestScores()[evalKey];
-    if (saveBestScore(evalKey, score, avg)) {
-      recapBest.textContent = '🏆 Nouveau meilleur score !';
-      recapBest.className = 'recap-best record';
-    } else {
-      recapBest.textContent = 'Meilleur score : ' + formatBest(previousBest);
-      recapBest.className = 'recap-best';
-    }
-
-    recapCard.classList.remove('festive');
-
-    if (score === 5 && avg < 20) {
-      recapTitle.textContent = '🎉 Bravo ! 🎉';
-      recapMessage.textContent = 'Score parfait et rythme excellent, tu maîtrises parfaitement ces conversions !';
-      recapMessage.className = 'recap-message green';
-      recapCard.classList.add('festive');
-      safeBurstConfetti();
-    } else {
-      recapTitle.textContent = 'Résultats';
-      if (avg < 20) {
-        recapMessage.textContent = 'Rythme satisfaisant !';
-        recapMessage.className = 'recap-message green';
-      } else if (avg <= 40) {
-        recapMessage.textContent = 'Rythme un peu lent, mais correct.';
-        recapMessage.className = 'recap-message yellow';
-      } else if (score >= 2) {
-        recapMessage.textContent = 'Rythme insuffisant, mais continue, tu progresses !';
-        recapMessage.className = 'recap-message red';
-      } else {
-        recapMessage.textContent = 'Rythme insuffisant, entraîne-toi encore un peu.';
-        recapMessage.className = 'recap-message red';
-      }
-    }
-
-    showScreen('recap');
   }
 
   // ===================================================================
@@ -656,21 +699,11 @@
     customFromValueInput.focus();
   }
 
-  function startCustomSession(returnTo, categoryPool) {
-    customReturnScreen = returnTo || 'home';
+  function startCustomSession(categoryPool) {
     customCategoryPool = categoryPool || null;
     setTheme('custom');
     showScreen('custom');
     resetCustomForm();
-  }
-
-  function goBackFromCustom() {
-    clearPendingTimers();
-    if (customReturnScreen === 'home3e') {
-      goToHome3e();
-    } else {
-      goHome();
-    }
   }
 
   function onCustomFromUnitChange() {
@@ -822,21 +855,14 @@
     return { unitsDigit, tensDigit, decimalDigit };
   }
 
-  function startTutoSession(returnTo, theme) {
-    tutoReturnScreen = returnTo || 'home';
-    setTheme(theme || 'tuto');
+  function startTutoSession() {
+    setTheme('tuto-classique');
     showScreen('tuto');
     newTutoExample();
   }
 
-  function goBackFromTuto() {
-    clearPendingTimers();
-    if (tutoReturnScreen === 'tuto3eMenu') {
-      setTheme('');
-      showScreen('tuto3eMenu');
-    } else {
-      goHome();
-    }
+  function goBackToTutoMenu() {
+    goToMenu('tutoMenu');
   }
 
   function newTutoExample() {
@@ -1186,7 +1212,7 @@
   }
 
   function startTutoTempsSession() {
-    setTheme('tuto3e-temps');
+    setTheme('tuto-temps');
     showScreen('tutoTemps');
     newTutoTempsExample();
   }
@@ -1302,7 +1328,7 @@
   }
 
   function startTutoVitesseSession() {
-    setTheme('tuto3e-vitesse');
+    setTheme('tuto-vitesse');
     showScreen('tutoVitesse');
     newTutoVitesseExample();
   }
@@ -1323,7 +1349,7 @@
   }
 
   // ===================================================================
-  //  Mode mixte : Entraînement Temps/Vitesse (3e) et Évaluation Experte (3e)
+  //  Mode mixte : Entraînement temps et vitesse, Évaluation 3e
   // ===================================================================
 
   function randChoice(arr) {
@@ -1360,45 +1386,39 @@
     mixedScoreValueEl.textContent = mixedScore.correct + '/' + mixedScore.total;
   }
 
-  function updateMixedChrono() {
-    const elapsed = (performance.now() - mixedQuestionStart) / 1000;
-    mixedChronoValueEl.textContent = elapsed.toFixed(1) + ' s';
-  }
-
   function startEntrainementTV() {
     pendingMixedStart = 'entrainement';
-    setTheme('entrainement3e-tv');
+    setTheme('train-tv');
     showScreen('mixedReady');
   }
 
-  function startEvaluationExperte() {
+  function startEvaluation3e() {
     pendingMixedStart = 'evaluation';
-    setTheme('eval3e-experte');
+    setTheme('eval3e');
     showScreen('mixedReady');
   }
 
   function beginMixedEntrainement() {
     mixedMode = 'entrainement';
-    exerciseReturnScreen = 'entrainement3eMenu';
+    exerciseReturnScreen = 'trainMenu';
     mixedScore = { correct: 0, total: 0 };
     updateMixedScoreDisplay();
-    mixedChronoEl.classList.add('hidden');
+    hideEvalUi();
     mixedScoreDisplayEl.classList.remove('hidden');
-    setTheme('entrainement3e-tv');
+    setTheme('train-tv');
     showScreen('mixed');
     loadMixedExercise();
   }
 
   function beginMixedEvaluation() {
     mixedMode = 'evaluation';
-    exerciseReturnScreen = 'entrainement3eMenu';
-    evalStats = { count: 0, correctCount: 0, times: [] };
-    evalKey = 'evaluation3e-experte';
+    exerciseReturnScreen = 'challenge';
     mixedTypeQueue = buildExpertQueue();
-    recapRestartFn = () => beginMixedEvaluation();
-    mixedChronoEl.classList.remove('hidden');
     mixedScoreDisplayEl.classList.add('hidden');
-    setTheme('eval3e-experte');
+    hideEvalUi();
+    startEvalRun('eval3e', { chrono: mixedChronoEl, chronoValue: mixedChronoValueEl, progress: mixedEvalProgressEl, progressValue: mixedEvalProgressValueEl },
+      beginMixedEvaluation);
+    setTheme('eval3e');
     showScreen('mixed');
     loadMixedExercise();
   }
@@ -1407,7 +1427,9 @@
     clearPendingTimers();
     mixedFailedOnce = false;
 
-    const kind = mixedMode === 'evaluation' ? mixedTypeQueue.shift() : randChoice(['temps', 'vitesse']);
+    const kind = mixedMode === 'evaluation'
+      ? (mixedTypeQueue.shift() || randChoice(['classique', 'temps', 'vitesse']))
+      : randChoice(['temps', 'vitesse']);
     mixedCurrent = generateMixedExercise(kind);
 
     mixedFromValueEl.textContent = Generator.formatNumberFR(mixedCurrent.fromValue);
@@ -1420,6 +1442,7 @@
     btnMixedValidate.disabled = false;
     btnMixedValidate.classList.remove('hidden');
     btnMixedNext.classList.add('hidden');
+    btnMixedNext.textContent = mixedMode === 'evaluation' ? 'Passer cette conversion' : 'Conversion suivante';
     mixedFeedbackEl.textContent = '';
     mixedFeedbackEl.className = 'feedback';
 
@@ -1429,11 +1452,7 @@
     if (kind === 'temps') buildTimeDiagram(mixedTimeDiagramEl, false);
     if (kind === 'classique') DraftTable.resetTable(draftTableEl);
 
-    if (mixedMode === 'evaluation') {
-      mixedQuestionStart = performance.now();
-      updateMixedChrono();
-      mixedChronoIntervalId = setInterval(updateMixedChrono, 100);
-    }
+    if (mixedMode === 'evaluation') startEvalQuestion();
 
     mixedAnswerInput.focus();
   }
@@ -1461,13 +1480,9 @@
     btnMixedValidate.disabled = true;
     btnMixedNext.classList.add('hidden');
 
+    let finished = false;
     if (mixedMode === 'evaluation') {
-      clearInterval(mixedChronoIntervalId);
-      mixedChronoIntervalId = null;
-      const elapsed = (performance.now() - mixedQuestionStart) / 1000;
-      evalStats.times.push(elapsed);
-      evalStats.correctCount += 1;
-      evalStats.count += 1;
+      finished = evalSucceeded();
     } else {
       mixedScore.total += 1;
       if (!mixedFailedOnce) mixedScore.correct += 1;
@@ -1475,8 +1490,8 @@
     }
 
     advanceTimeoutId = setTimeout(() => {
-      if (mixedMode === 'evaluation' && evalStats.count >= 5) {
-        showRecap();
+      if (finished) {
+        showResults();
       } else {
         loadMixedExercise();
       }
@@ -1490,6 +1505,10 @@
     mixedAnswerInput.classList.add('wrong');
     mixedFeedbackEl.textContent = 'Ce n\'est pas la bonne réponse, réessaie !';
     mixedFeedbackEl.className = 'feedback error';
+    if (mixedMode === 'evaluation') {
+      penalizeEval();
+      mixedFeedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
+    }
     mixedFailedOnce = true;
     btnMixedNext.classList.remove('hidden');
     mixedAnswerInput.focus();
@@ -1509,11 +1528,8 @@
     mixedFeedbackEl.className = 'feedback info';
 
     if (mixedMode === 'evaluation') {
-      clearInterval(mixedChronoIntervalId);
-      mixedChronoIntervalId = null;
-      const elapsed = (performance.now() - mixedQuestionStart) / 1000;
-      evalStats.times.push(elapsed);
-      evalStats.count += 1;
+      evalSkipped();
+      mixedTypeQueue.unshift(mixedCurrent.kind); // une autre conversion du même type la remplace
     } else {
       mixedScore.total += 1;
       updateMixedScoreDisplay();
@@ -1521,35 +1537,18 @@
 
     advanceTimeoutId = setTimeout(() => {
       btnMixedNext.disabled = false;
-      if (mixedMode === 'evaluation' && evalStats.count >= 5) {
-        showRecap();
-      } else {
-        loadMixedExercise();
-      }
+      loadMixedExercise();
     }, 2000);
   }
 
-  // --- Écouteurs d'événements : niveaux et accueils ---
-  levelCards.forEach((card) => {
-    card.addEventListener('click', () => {
-      if (card.dataset.level === '3e') {
-        goToHome3e();
-      } else {
-        setTheme('');
-        showScreen('home');
-      }
-    });
+  // --- Écouteurs d'événements : menus (accueil, Tutoriels, Entraînements, Challenge) ---
+  navButtons.forEach((btn) => {
+    btn.addEventListener('click', () => goToMenu(btn.dataset.nav || btn.dataset.back));
   });
-  btnToLevelSelect.addEventListener('click', goToLevelSelect);
-  btnToLevelSelect3e.addEventListener('click', goToLevelSelect);
-  btnBackTuto3eMenu.addEventListener('click', goToHome3e);
-  btnBackEntrainement3eMenu.addEventListener('click', goToHome3e);
 
   // --- Écouteurs d'événements : mode mixte ---
   btnBackMixedReady.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('entrainement3eMenu');
+    goToMenu(pendingMixedStart === 'evaluation' ? 'challenge' : 'trainMenu');
   });
   btnMixedReady.addEventListener('click', () => {
     if (pendingMixedStart === 'entrainement') {
@@ -1558,11 +1557,7 @@
       beginMixedEvaluation();
     }
   });
-  btnBackMixed.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('entrainement3eMenu');
-  });
+  btnBackMixed.addEventListener('click', goToReturnScreen);
   btnMixedValidate.addEventListener('click', validateMixedAnswer);
   btnMixedNext.addEventListener('click', revealMixedAndContinue);
   mixedAnswerInput.addEventListener('keydown', (e) => {
@@ -1576,56 +1571,50 @@
     }
   });
 
-  // --- Écouteurs d'événements : modes générés ---
+  // --- Écouteurs d'événements : boutons de mode ---
   diffCards.forEach((card) => {
     card.addEventListener('click', () => {
       const diff = card.dataset.diff;
       if (diff === 'custom') {
-        startCustomSession('home');
-      } else if (diff === 'custom3e') {
-        startCustomSession('home3e', Units.CUSTOM_EXTENDED_FAMILY_KEYS);
-      } else if (diff === 'tuto') {
-        startTutoSession('home', 'tuto');
-      } else if (diff === 'tuto3e') {
-        setTheme('');
-        showScreen('tuto3eMenu');
-      } else if (diff === 'tuto3e-classique') {
-        startTutoSession('tuto3eMenu', 'tuto3e-classique');
-      } else if (diff === 'tuto3e-temps') {
+        startCustomSession(Units.CUSTOM_EXTENDED_FAMILY_KEYS);
+      } else if (diff === 'tuto-classique') {
+        startTutoSession();
+      } else if (diff === 'tuto-temps') {
         startTutoTempsSession();
-      } else if (diff === 'tuto3e-vitesse') {
+      } else if (diff === 'tuto-vitesse') {
         startTutoVitesseSession();
-      } else if (diff === 'entrainement3e') {
-        setTheme('');
-        showScreen('entrainement3eMenu');
-      } else if (diff === 'entrainement3e-classique') {
+      } else if (diff === 'train-n1') {
+        startSession('facile', { returnTo: 'trainMenu', theme: 'train-n1' });
+      } else if (diff === 'train-classique') {
         startSession('moyen', {
-          returnTo: 'entrainement3eMenu',
+          returnTo: 'trainMenu',
           categoryPool: Units.EXTENDED_CATEGORY_KEYS,
-          theme: 'entrainement3e-classique'
+          theme: 'train-classique'
         });
-      } else if (diff === 'entrainement3e-tv') {
+      } else if (diff === 'train-tv') {
         startEntrainementTV();
-      } else if (diff === 'evaluation3e-classique') {
-        startSession('evaluation', {
-          returnTo: 'entrainement3eMenu',
-          categoryPool: Units.EXTENDED_CATEGORY_KEYS,
-          theme: 'eval3e-classique',
-          evalKey: 'evaluation3e-classique'
-        });
-      } else if (diff === 'evaluation3e-experte') {
-        startEvaluationExperte();
-      } else {
-        startSession(diff);
+      } else if (diff === 'eval4e') {
+        startSession('evaluation', { returnTo: 'challenge', theme: 'eval4e', evalKey: 'eval4e' });
+      } else if (diff === 'eval3e') {
+        startEvaluation3e();
       }
     });
   });
 
   btnBack.addEventListener('click', goToReturnScreen);
-  btnBackCustom.addEventListener('click', goBackFromCustom);
-  btnBackTuto.addEventListener('click', goBackFromTuto);
-  btnHome.addEventListener('click', goToReturnScreen);
-  btnRestart.addEventListener('click', () => { if (recapRestartFn) recapRestartFn(); });
+  btnBackCustom.addEventListener('click', () => goToMenu('home'));
+  btnBackTuto.addEventListener('click', goBackToTutoMenu);
+
+  // --- Écouteurs d'événements : résultats du Challenge ---
+  resultsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-do]');
+    if (!btn) return;
+    if (btn.dataset.do === 'again') {
+      evalRun.restart();
+    } else {
+      goToMenu('challenge');
+    }
+  });
 
   btnHint.addEventListener('click', onHintClick);
   btnValidate.addEventListener('click', validateAnswer);
@@ -1659,7 +1648,7 @@
   btnTutoNext.addEventListener('click', onTutoNext);
   btnTutoValidate.addEventListener('click', validateTutoAnswer);
   btnTutoRetry.addEventListener('click', newTutoExample);
-  btnTutoHome.addEventListener('click', goBackFromTuto);
+  btnTutoHome.addEventListener('click', goBackToTutoMenu);
   tutoAnswerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !btnTutoValidate.classList.contains('hidden')) {
       e.preventDefault();
@@ -1668,21 +1657,13 @@
   });
 
   // --- Écouteurs d'événements : Tuto Temps ---
-  btnBackTutoTemps.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('tuto3eMenu');
-  });
+  btnBackTutoTemps.addEventListener('click', goBackToTutoMenu);
   btnTtPrev.addEventListener('click', onTtPrev);
   btnTtNext.addEventListener('click', onTtNext);
   btnTtValidate.addEventListener('click', validateTtAnswer);
   btnTtErase.addEventListener('click', onTtErase);
   btnTtRetry.addEventListener('click', newTutoTempsExample);
-  btnTtHome.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('tuto3eMenu');
-  });
+  btnTtHome.addEventListener('click', goBackToTutoMenu);
   ttOpButtons.forEach((btn) => {
     btn.addEventListener('click', () => onTtOpClick(btn.dataset.op, Number(btn.dataset.factor)));
   });
@@ -1694,22 +1675,14 @@
   });
 
   // --- Écouteurs d'événements : Tuto Vitesse ---
-  btnBackTutoVitesse.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('tuto3eMenu');
-  });
+  btnBackTutoVitesse.addEventListener('click', goBackToTutoMenu);
   btnTvPrev.addEventListener('click', onTvPrev);
   btnTvNext.addEventListener('click', () => renderTvStep(2));
   btnTvValidate.addEventListener('click', validateTvAnswer);
   btnTvMult.addEventListener('click', () => onTvChoice('×'));
   btnTvDiv.addEventListener('click', () => onTvChoice('÷'));
   btnTvRetry.addEventListener('click', newTutoVitesseExample);
-  btnTvHome.addEventListener('click', () => {
-    clearPendingTimers();
-    setTheme('');
-    showScreen('tuto3eMenu');
-  });
+  btnTvHome.addEventListener('click', goBackToTutoMenu);
   tvAnswerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !btnTvValidate.classList.contains('hidden')) {
       e.preventDefault();
@@ -1723,7 +1696,79 @@
     }
   });
 
+  // ===================================================================
+  //  Accolades 4e / 3e à gauche des boutons (Tutoriels, Entraînements)
+  // ===================================================================
+
+  // from / to : boutons couverts (index) ; col : 0 = près des boutons, 1 = un cran plus loin.
+  // L'accolade listée en dernier passe au-dessus et efface l'autre au croisement.
+  const BRACES = {
+    'tuto-menu-list': [{ label: '4e', from: 0, to: 0, col: 0 }, { label: '3e', from: 1, to: 2, col: 0 }],
+    'train-menu-list': [{ label: '4e', from: 0, to: 1, col: 0 }, { label: '3e', from: 1, to: 2, col: 1 }]
+  };
+
+  // Accolade verticale : crochets vers la droite (vers les boutons), pointe vers la gauche
+  function bracePath(x, y1, y2, hookEnd) {
+    const ym = (y1 + y2) / 2;
+    const r = Math.min(10, (y2 - y1) / 4);
+    const tip = x - 12;
+    return 'M' + hookEnd + ' ' + y1 + ' H' + (x + r) + ' Q' + x + ' ' + y1 + ' ' + x + ' ' + (y1 + r) +
+      ' V' + (ym - r) + ' Q' + x + ' ' + ym + ' ' + tip + ' ' + ym +
+      ' Q' + x + ' ' + ym + ' ' + x + ' ' + (ym + r) +
+      ' V' + (y2 - r) + ' Q' + x + ' ' + y2 + ' ' + (x + r) + ' ' + y2 + ' H' + hookEnd;
+  }
+
+  function drawBraces(list) {
+    const buttons = list.querySelectorAll('.diff-card');
+    let svg = list.querySelector('.braces');
+    if (!svg) {
+      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'braces');
+      svg.setAttribute('aria-hidden', 'true');
+      list.prepend(svg);
+    }
+    const gutter = parseFloat(getComputedStyle(list).paddingLeft);
+    const height = list.offsetHeight;
+    const shadowId = 'brace-shadow-' + list.id;
+    svg.setAttribute('width', gutter);
+    svg.setAttribute('height', height);
+
+    const braces = BRACES[list.id].map((b) => {
+      const top = buttons[b.from];
+      const bottom = buttons[b.to];
+      const y1 = top.offsetTop + 10;
+      const y2 = bottom.offsetTop + bottom.offsetHeight - 10;
+      const x = gutter - 22 - b.col * 18;
+      return { label: b.label, x, ym: (y1 + y2) / 2, d: bracePath(x, y1, y2, gutter - 6) };
+    });
+
+    // Chaque accolade est masquée là où passent celles du dessus : on voit le croisement
+    const area = 'x="-60" y="-60" width="' + (gutter + 120) + '" height="' + (height + 120) + '"';
+    let defs = '<filter id="' + shadowId + '" x="-30%" y="-10%" width="160%" height="120%">' +
+      '<feDropShadow dx="0.6" dy="1.4" stdDeviation="0.9" flood-color="#2E3A46" flood-opacity="0.28"/></filter>';
+    braces.forEach((b, i) => {
+      const above = braces.slice(i + 1);
+      if (!above.length) return;
+      defs += '<mask id="' + shadowId + '-m' + i + '" maskUnits="userSpaceOnUse" ' + area + '><rect ' + area + ' fill="#fff"/>' +
+        above.map((a) => '<path d="' + a.d + '" fill="none" stroke="#000" stroke-width="11" stroke-linecap="round"/>').join('') + '</mask>';
+    });
+
+    svg.innerHTML = '<defs>' + defs + '</defs>' + braces.map((b, i) =>
+      '<g class="brace--' + b.label + '"' + (i < braces.length - 1 ? ' mask="url(#' + shadowId + '-m' + i + ')"' : '') + '>' +
+      '<g filter="url(#' + shadowId + ')"><path class="brace-line" d="' + b.d + '"/>' +
+      '<text class="brace-label" x="' + (b.x - 16) + '" y="' + b.ym + '">' + b.label + '</text></g></g>'
+    ).join('');
+  }
+
+  // Redessine dès que la liste change de taille (affichage de la page, police chargée, rotation...)
+  Object.keys(BRACES).forEach((id) => {
+    const list = document.getElementById(id);
+    new ResizeObserver(() => {
+      if (list.offsetHeight) drawBraces(list);
+    }).observe(list);
+  });
+
   // Écran de départ
   renderBestScores();
-  showScreen('levelSelect');
+  goToMenu('home');
 })();

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <!-- Motif "tableau Velleda" : traces mal effacées + écritures au feutre (fond transparent, répété en mosaïque) -->
+  <defs>
+    <style>
+      .ink { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 3; }
+      .txt { fill: currentColor; font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', 'Chalkboard SE', cursive; font-weight: 700; }
+      .blue { color: #2B5FC7; }
+      .red { color: #D93B3B; }
+      .green { color: #2E9E5B; }
+      .black { color: #2E3A46; }
+      .ghost { fill: none; stroke: #8C96A3; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <!-- Traces de feutre mal effacées -->
+  <g opacity="0.12">
+    <path class="ghost" stroke-width="14" d="M420 80 q30 -18 60 0 t60 0 t60 0 t60 2"/>
+    <path class="ghost" stroke-width="9" d="M60 260 l40 -22 l-10 30 l45 -28 l-12 32 l48 -30"/>
+    <path class="ghost" stroke-width="18" d="M880 420 q60 -30 120 -4 q50 22 100 -6"/>
+    <path class="ghost" stroke-width="7" d="M300 760 c30 -40 60 30 90 -10 s60 30 90 -10 s60 30 90 -10"/>
+    <path class="ghost" stroke-width="12" d="M1180 520 l35 -18 l-6 26 l38 -22 l-6 26 l38 -20"/>
+    <path class="ghost" stroke-width="10" d="M900 940 q40 -24 80 0 t80 0"/>
+    <path class="ghost" stroke-width="16" d="M40 470 q40 -20 80 4 t70 -6"/>
+    <path class="ghost" stroke-width="6" d="M1540 200 c-20 30 20 40 0 70 s20 40 0 70"/>
+    <path class="ghost" stroke-width="11" d="M640 640 l30 -16 l-6 24 l34 -20 l-6 24 l34 -18"/>
+    <path class="ghost" stroke-width="8" d="M1300 860 c20 -30 50 20 70 -8 s50 20 70 -8"/>
+  </g>
+  <g opacity="0.16">
+    <text class="txt black" x="1000" y="610" font-size="26" transform="rotate(-6 1000 610)">1 L = 1 dm³</text>
+    <text class="txt blue" x="1120" y="930" font-size="24" transform="rotate(4 1120 930)">mA → A</text>
+    <text class="txt red" x="680" y="230" font-size="24" transform="rotate(-3 680 230)">1 m² = 100 dm²</text>
+  </g>
+
+  <!-- Écritures au feutre -->
+  <g opacity="0.34">
+    <text class="txt blue" x="60" y="110" font-size="34" transform="rotate(-4 60 110)">1 km = 1 000 m</text>
+
+    <text class="txt blue" x="500" y="150" font-size="36" transform="rotate(3 500 150)">E = mc²</text>
+
+    <!-- Tableau de conversion esquissé -->
+    <g class="green" transform="rotate(-2 1340 90)">
+      <path class="ink" d="M1150 58 h390 M1150 112 h390 M1150 58 v54 M1205 58 v54 M1260 58 v54 M1315 58 v54 M1370 58 v54 M1425 58 v54 M1480 58 v54 M1540 58 v54"/>
+      <text class="txt" x="1160" y="94" font-size="20">kg</text>
+      <text class="txt" x="1214" y="94" font-size="20">hg</text>
+      <text class="txt" x="1263" y="94" font-size="20">dag</text>
+      <text class="txt" x="1334" y="94" font-size="20">g</text>
+      <text class="txt" x="1380" y="94" font-size="20">dg</text>
+      <text class="txt" x="1436" y="94" font-size="20">cg</text>
+      <text class="txt" x="1490" y="94" font-size="20">mg</text>
+    </g>
+
+    <!-- v = d / t -->
+    <g class="black" transform="rotate(-3 760 350)">
+      <text class="txt" x="720" y="365" font-size="36">v =</text>
+      <text class="txt" x="800" y="338" font-size="32">d</text>
+      <path class="ink" d="M790 350 h40"/>
+      <text class="txt" x="802" y="392" font-size="32">t</text>
+    </g>
+
+    <!-- √ et π -->
+    <path class="ink blue" stroke-width="3.5" d="M260 300 l12 -6 l14 34 l20 -60 h46"/>
+    <text class="txt blue" x="1000" y="290" font-size="44">π</text>
+
+    <!-- Graphique : axes + courbe -->
+    <g class="red" transform="rotate(2 1320 300)">
+      <path class="ink" d="M1260 390 v-150 m-8 12 l8 -12 l8 12 M1260 390 h170 m-12 -8 l12 8 l-12 8"/>
+      <path class="ink" d="M1270 380 c30 -120 70 -130 100 -60 s30 40 40 30"/>
+      <path class="ink" stroke-width="2" stroke-dasharray="4 7" d="M1342 390 v-112"/>
+    </g>
+
+    <!-- m/s ⇄ km/h -->
+    <g class="red" transform="rotate(-3 470 500)">
+      <text class="txt" x="380" y="510" font-size="28">m/s</text>
+      <path class="ink" d="M445 488 h90 m-10 -7 l10 7 l-10 7 M535 508 h-90 m10 -7 l-10 7 l10 7"/>
+      <text class="txt" x="462" y="476" font-size="20">× 3,6</text>
+      <text class="txt" x="462" y="536" font-size="20">÷ 3,6</text>
+      <text class="txt" x="545" y="510" font-size="28">km/h</text>
+    </g>
+
+    <!-- Triangle rectangle + a² + b² = c² -->
+    <path class="ink blue" d="M80 700 l0 -120 l110 120 z M80 682 h18 v18"/>
+    <text class="txt green" x="220" y="640" font-size="30" transform="rotate(-5 220 640)">a² + b² = c²</text>
+
+    <text class="txt green" x="680" y="800" font-size="32" transform="rotate(4 680 800)">1 h = 60 min</text>
+
+    <!-- Atome -->
+    <g class="blue" transform="translate(1440 720)">
+      <ellipse class="ink" rx="70" ry="24"/>
+      <ellipse class="ink" rx="70" ry="24" transform="rotate(60)"/>
+      <ellipse class="ink" rx="70" ry="24" transform="rotate(-60)"/>
+      <circle r="7" fill="currentColor"/>
+    </g>
+
+    <!-- Petite pyramide -->
+    <path class="ink black" d="M420 960 l50 -90 l50 90 z M470 870 l-14 90"/>
+
+    <text class="txt red" x="40" y="440" font-size="26" transform="rotate(5 40 440)">0,5 t = 500 kg</text>
+
+    <text class="txt black" x="1420" y="520" font-size="26" transform="rotate(-4 1420 520)">60 s</text>
+  </g>
+</svg>
