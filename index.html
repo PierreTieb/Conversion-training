@@ -64,6 +64,7 @@
             <button class="diff-card diff-evaluation" data-diff="evaluation" type="button">
               <span class="diff-name">Évaluation</span>
               <span class="diff-desc">5 conversions chronométrées</span>
+              <span class="diff-best" hidden></span>
             </button>
           </div>
         </div>
@@ -159,12 +160,14 @@
           <button class="diff-card diff-eval3e-classique" data-diff="evaluation3e-classique" type="button">
             <span class="diff-name">Évaluation classique</span>
             <span class="diff-desc">5 conversions chronométrées, Ampère et Volt inclus</span>
+            <span class="diff-best" hidden></span>
           </button>
         </div>
         <div class="mode-group">
           <button class="diff-card diff-eval3e-experte" data-diff="evaluation3e-experte" type="button">
             <span class="diff-name">Évaluation experte</span>
             <span class="diff-desc">Tout mélangé : classique, temps, vitesse</span>
+            <span class="diff-best" hidden></span>
           </button>
         </div>
       </div>
@@ -432,6 +435,7 @@
         <p class="recap-score" id="recap-score">Score : 0/5</p>
         <p class="recap-time" id="recap-time">Temps moyen : 0 s</p>
         <p class="recap-message" id="recap-message"></p>
+        <p class="recap-best" id="recap-best"></p>
         <div class="recap-actions">
           <button id="btn-restart" class="btn-primary" type="button">Relancer une série</button>
           <button id="btn-home" class="btn-secondary" type="button">Choisir une autre difficulté</button>

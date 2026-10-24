@@ -50,6 +50,7 @@
   const recapTime = document.getElementById('recap-time');
   const recapMessage = document.getElementById('recap-message');
   const recapCard = document.getElementById('recap-card');
+  const recapBest = document.getElementById('recap-best');
   const btnRestart = document.getElementById('btn-restart');
   const btnHome = document.getElementById('btn-home');
 
@@ -168,6 +169,7 @@
   let chronoIntervalId = null;
   let questionStart = 0;
   let evalStats = { count: 0, correctCount: 0, times: [] };
+  let evalKey = 'evaluation'; // data-diff de l'évaluation en cours (clé du meilleur score)
   let sessionScore = { correct: 0, total: 0 };
   let customRevealed = false;
 
@@ -233,6 +235,54 @@
   attachNumericSanitizer(ttAnswerInput);
   attachNumericSanitizer(tvAnswerInput);
   attachNumericSanitizer(mixedAnswerInput);
+
+  // --- Meilleurs scores des évaluations, mémorisés dans le navigateur ---
+  // Meilleur = plus de bonnes réponses ; à score égal, temps moyen le plus court.
+  const BEST_KEY = 'conv-eval-best';
+
+  function readBestScores() {
+    try {
+      return JSON.parse(localStorage.getItem(BEST_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeBestScores(all) {
+    try {
+      localStorage.setItem(BEST_KEY, JSON.stringify(all));
+    } catch (e) {
+      /* stockage indisponible (navigation privée...) : on ignore */
+    }
+  }
+
+  function formatBest(best) {
+    return best.score + '/5 en ' + best.avg.toFixed(1) + ' s en moyenne';
+  }
+
+  function renderBestScores() {
+    const all = readBestScores();
+    document.querySelectorAll('.diff-card[data-diff]').forEach((card) => {
+      const badge = card.querySelector('.diff-best');
+      if (!badge) return;
+      const best = all[card.dataset.diff];
+      badge.textContent = best ? '🏆 Meilleur score : ' + formatBest(best) : '';
+      badge.hidden = !best;
+    });
+  }
+
+  // Enregistre le résultat s'il bat le record ; renvoie true si nouveau record.
+  function saveBestScore(key, score, avg) {
+    const all = readBestScores();
+    const best = all[key];
+    const isRecord = !best || score > best.score || (score === best.score && avg < best.avg);
+    if (isRecord) {
+      all[key] = { score: score, avg: avg, date: new Date().toISOString() };
+      writeBestScores(all);
+      renderBestScores();
+    }
+    return isRecord;
+  }
 
   // --- Navigation entre écrans ---
   function showScreen(name) {
@@ -306,6 +356,7 @@
 
     if (level === 'evaluation') {
       evalStats = { count: 0, correctCount: 0, times: [] };
+      evalKey = opts.evalKey || 'evaluation';
       chronoEl.classList.remove('hidden');
       scoreDisplayEl.classList.add('hidden');
     } else if (level === 'facile' || level === 'moyen') {
@@ -482,6 +533,15 @@
 
     recapScore.textContent = 'Score : ' + score + '/5';
     recapTime.textContent = 'Temps moyen par conversion : ' + avg.toFixed(1) + ' s';
+
+    const previousBest = readBestScores()[evalKey];
+    if (saveBestScore(evalKey, score, avg)) {
+      recapBest.textContent = '🏆 Nouveau meilleur score !';
+      recapBest.className = 'recap-best record';
+    } else {
+      recapBest.textContent = 'Meilleur score : ' + formatBest(previousBest);
+      recapBest.className = 'recap-best';
+    }
 
     recapCard.classList.remove('festive');
 
@@ -1333,6 +1393,7 @@
     mixedMode = 'evaluation';
     exerciseReturnScreen = 'entrainement3eMenu';
     evalStats = { count: 0, correctCount: 0, times: [] };
+    evalKey = 'evaluation3e-experte';
     mixedTypeQueue = buildExpertQueue();
     recapRestartFn = () => beginMixedEvaluation();
     mixedChronoEl.classList.remove('hidden');
@@ -1549,7 +1610,8 @@
         startSession('evaluation', {
           returnTo: 'entrainement3eMenu',
           categoryPool: Units.EXTENDED_CATEGORY_KEYS,
-          theme: 'eval3e-classique'
+          theme: 'eval3e-classique',
+          evalKey: 'evaluation3e-classique'
         });
       } else if (diff === 'evaluation3e-experte') {
         startEvaluationExperte();
@@ -1662,5 +1724,6 @@
   });
 
   // Écran de départ
+  renderBestScores();
   showScreen('levelSelect');
 })();
