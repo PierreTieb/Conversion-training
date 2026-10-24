@@ -293,17 +293,12 @@
     updateEvalChrono();
   }
 
-  function penalizeEval() {
+  // Mauvaise réponse : pas de pénalité, le temps perdu à réessayer suffit
+  function evalFailed() {
     evalRun.errors += 1;
-    evalRun.penalty += EVAL_PENALTY;
-    updateEvalChrono();
-    const el = evalRun.ui.chrono;
-    el.classList.remove('penalty');
-    void el.offsetWidth;
-    el.classList.add('penalty');
   }
 
-  // Conversion réussie : renvoie true quand les 5 sont faites
+  // Conversion réussie (même après des erreurs) : renvoie true quand les 5 sont faites
   function evalSucceeded() {
     stopEvalQuestion();
     evalRun.successes += 1;
@@ -311,10 +306,16 @@
     return evalRun.successes >= EVAL_GOAL;
   }
 
-  // Conversion passée : elle ne compte pas, une autre la remplace
+  // Conversion passée : elle ne compte pas, une autre la remplace, et +5 s de pénalité
   function evalSkipped() {
     stopEvalQuestion();
     evalRun.skips += 1;
+    evalRun.penalty += EVAL_PENALTY;
+    updateEvalChrono();
+    const el = evalRun.ui.chrono;
+    el.classList.remove('penalty');
+    void el.offsetWidth;
+    el.classList.add('penalty');
   }
 
   function hideEvalUi() {
@@ -402,8 +403,8 @@
       (isRecord ? '<p class="res-record">🏆 Nouveau record !</p>' : '<p class="res-best">Ton record : ' + formatBest(previousBest) + '</p>') +
       '<table class="res-details"><tbody>' +
       '<tr><th>Temps total</th><td>' + formatSeconds(total) + '</td></tr>' +
-      '<tr><th>Erreurs (+' + EVAL_PENALTY + ' s chacune)</th><td>' + r.errors + '</td></tr>' +
-      '<tr><th>Conversions passées</th><td>' + r.skips + '</td></tr>' +
+      '<tr><th>Erreurs</th><td>' + r.errors + '</td></tr>' +
+      '<tr><th>Conversions passées (+' + EVAL_PENALTY + ' s chacune)</th><td>' + r.skips + '</td></tr>' +
       '</tbody></table>' +
       '<div class="results-actions">' +
       '<button class="btn-primary" data-do="again" type="button">Rejouer</button>' +
@@ -578,10 +579,7 @@
     answerInput.classList.add('wrong');
     feedbackEl.textContent = 'Ce n\'est pas la bonne réponse, réessaie !';
     feedbackEl.className = 'feedback error';
-    if (currentLevel === 'evaluation') {
-      penalizeEval();
-      feedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
-    }
+    if (currentLevel === 'evaluation') evalFailed();
     hasFailedOnce = true;
     btnNext.classList.remove('hidden');
     answerInput.focus();
@@ -603,6 +601,7 @@
 
     if (currentLevel === 'evaluation') {
       evalSkipped();
+      feedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
     } else {
       sessionScore.total += 1; // ratée puis résolue (ou passée) = comptée comme une erreur
       updateScoreDisplay();
@@ -1505,10 +1504,7 @@
     mixedAnswerInput.classList.add('wrong');
     mixedFeedbackEl.textContent = 'Ce n\'est pas la bonne réponse, réessaie !';
     mixedFeedbackEl.className = 'feedback error';
-    if (mixedMode === 'evaluation') {
-      penalizeEval();
-      mixedFeedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
-    }
+    if (mixedMode === 'evaluation') evalFailed();
     mixedFailedOnce = true;
     btnMixedNext.classList.remove('hidden');
     mixedAnswerInput.focus();
@@ -1529,6 +1525,7 @@
 
     if (mixedMode === 'evaluation') {
       evalSkipped();
+      mixedFeedbackEl.textContent += ' (+' + EVAL_PENALTY + ' s)';
       mixedTypeQueue.unshift(mixedCurrent.kind); // une autre conversion du même type la remplace
     } else {
       mixedScore.total += 1;
@@ -1560,10 +1557,11 @@
   btnBackMixed.addEventListener('click', goToReturnScreen);
   btnMixedValidate.addEventListener('click', validateMixedAnswer);
   btnMixedNext.addEventListener('click', revealMixedAndContinue);
+  // Entrée valide la réponse tapée ; champ vide après une erreur = conversion suivante / passer
   mixedAnswerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (!btnMixedNext.classList.contains('hidden') && !btnMixedNext.disabled) {
+      if (mixedAnswerInput.value.trim() === '' && !btnMixedNext.classList.contains('hidden') && !btnMixedNext.disabled) {
         btnMixedNext.click();
       } else if (!btnMixedValidate.disabled) {
         btnMixedValidate.click();
@@ -1620,10 +1618,11 @@
   btnValidate.addEventListener('click', validateAnswer);
   btnNext.addEventListener('click', revealAndContinue);
 
+  // Entrée valide la réponse tapée ; champ vide après une erreur = conversion suivante / passer
   answerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (!btnNext.classList.contains('hidden') && !btnNext.disabled) {
+      if (answerInput.value.trim() === '' && !btnNext.classList.contains('hidden') && !btnNext.disabled) {
         btnNext.click();
       } else if (!btnValidate.disabled) {
         btnValidate.click();
