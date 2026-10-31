@@ -341,8 +341,9 @@
     }
   }
 
-  function formatBest(best) {
-    return formatSeconds(best.avg) + ' par conversion' + (best.medal ? ' ' + MEDAL_INFO[best.medal].icon : '');
+  // Record en HTML : la petite médaille obtenue (dessinée, comme sur l'écran de résultats), puis le temps
+  function formatBest(best, label) {
+    return (best.medal ? medalHtml({ id: best.medal }) : '') + '<span>' + (label || '') + formatSeconds(best.avg) + ' par conversion</span>';
   }
 
   function renderBestScores() {
@@ -351,7 +352,7 @@
       const badge = card.querySelector('.diff-best');
       if (!badge) return;
       const best = all[card.dataset.diff];
-      badge.textContent = best ? '🏆 Record : ' + formatBest(best) : '';
+      badge.innerHTML = best ? formatBest(best, 'Record : ') : '';
       badge.hidden = !best;
     });
   }
@@ -383,9 +384,147 @@
     return 'Bravo ! Va encore plus vite pour décrocher une médaille encore plus belle.';
   }
 
+  // ===================================================================
+  //  Duel : un code de 4 caractères fixe le tirage au sort des conversions.
+  //  Deux élèves qui tapent le même code ont les mêmes conversions, dans le même ordre
+  //  (y compris celles qui remplacent une conversion passée). Pas de serveur : l'appli
+  //  n'annonce pas de vainqueur ; un duel ne compte pas dans les records.
+  // ===================================================================
+
+  // 32 caractères faciles à lire (ni O/0, ni I/1) ; le reste par 2 du nombre du code donne l'évaluation
+  const DUEL_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const DUEL_CODES = 32 * 32 * 32 * 32;
+  const DUEL_KEYS = ['eval4e', 'eval3e'];
+  const DUEL_NAMES = { eval4e: 'Évaluation 4e', eval3e: 'Évaluation 3e' };
+  const nativeRandom = Math.random;
+  // Duel en cours : { code, key, slot (place de la conversion affichée), att (fois où elle a été passée) }
+  let duel = null;
+  let duelPending = null;
+
+  function duelNum(code) {
+    const c = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length !== 4) return -1;
+    let n = 0;
+    for (let i = 0; i < 4; i++) {
+      const d = DUEL_ABC.indexOf(c[i]);
+      if (d < 0) return -1;
+      n = n * 32 + d;
+    }
+    return n;
+  }
+  function duelCode(n) {
+    let s = '';
+    for (let i = 0; i < 4; i++) { s = DUEL_ABC[n % 32] + s; n = Math.floor(n / 32); }
+    return s;
+  }
+  function duelKey(code) { return DUEL_KEYS[duelNum(code) % 2]; }
+  function newDuelCode(key) {
+    let n = Math.floor(nativeRandom() * DUEL_CODES);
+    n = n - (n % 2) + DUEL_KEYS.indexOf(key);
+    return duelCode(n);
+  }
+  // Revanche : code calculé à partir du précédent (le même chez les deux joueurs), même évaluation
+  function rematchCode(code) {
+    const n = duelNum(code);
+    let m = (n * 7919 + 104729) % DUEL_CODES;
+    m = m - (m % 2) + (n % 2);
+    return duelCode(m);
+  }
+  // Générateur pseudo-aléatoire (mulberry32) re-semé à chaque conversion à partir du code et de son numéro
+  function seeded(seed) {
+    return function () {
+      seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Le tirage d'une conversion dépend de sa place (n° de la conversion à réussir) et du nombre de fois qu'elle a
+  // été passée : les deux joueurs ont les mêmes conversions à chaque place, même s'ils n'en passent pas autant.
+  // queue = true : tirage de l'ordre des types de l'Évaluation 3e, commun aux deux joueurs.
+  function seedDuel(queue) {
+    if (!duel) return;
+    let slot = -1, att = 0;
+    if (!queue) {
+      slot = evalRun.successes;
+      att = slot === duel.slot ? duel.att + 1 : 0;
+      duel.slot = slot;
+      duel.att = att;
+    }
+    Math.random = seeded(Math.imul(duelNum(duel.code) + 1, 2654435761) ^ Math.imul(slot + 2, 40503) ^ Math.imul(att + 1, 69069));
+  }
+  function endDuel() {
+    duel = null;
+    Math.random = nativeRandom;
+  }
+
+  // Fenêtre du Duel : étapes 'choice' (créer / rejoindre), 'create' (4e / 3e), 'join' (code tapé), 'ready' (code affiché)
+  const duelPop = document.getElementById('duel-pop');
+  const DUEL_TITLES = { choice: 'Mode Duel', create: 'Créer un duel', join: 'Rejoindre un duel' };
+  function duelStep(step, title) {
+    duelPop.querySelectorAll('.duel-step').forEach((s) => { s.hidden = s.dataset.step !== step; });
+    document.getElementById('duel-pop-title').textContent = title || DUEL_TITLES[step];
+    document.getElementById('duel-err').hidden = true;
+    duelPop.hidden = false;
+    if (step === 'join') {
+      document.getElementById('duel-code-in').value = '';
+      document.getElementById('duel-code-in').focus();
+    }
+  }
+  function openDuelPop() {
+    duelPending = null;
+    duelStep('choice');
+  }
+  function closeDuelPop() {
+    duelPop.hidden = true;
+    duelPending = null;
+  }
+  function showDuelReady(code, title, created) {
+    duelPending = code;
+    document.getElementById('duel-code').textContent = code;
+    document.getElementById('duel-level').textContent = DUEL_NAMES[duelKey(code)];
+    document.getElementById('duel-tip').textContent = created
+      ? 'Donne ce code à ton adversaire. Quand vous êtes prêts tous les deux, lancez le duel !'
+      : 'Quand vous êtes prêts tous les deux, lancez le duel !';
+    duelStep('ready', title);
+  }
+  function launchDuel(code) {
+    closeDuelPop();
+    duel = { code: code, key: duelKey(code), slot: -1, att: 0 };
+    if (duel.key === 'eval4e') startSession('evaluation', { returnTo: 'challenge', theme: 'eval4e', evalKey: 'eval4e' });
+    else startEvaluation3e();
+  }
+
+  // Fin d'un duel : temps et détails, le code, sans vainqueur ni record
+  function duelResults() {
+    const r = evalRun;
+    const total = r.time + r.penalty;
+    const avg = total / EVAL_GOAL;
+    const code = duel.code;
+    endDuel();
+    resultsEl.innerHTML =
+      '<svg class="duel-ico--big" viewBox="0 0 120 56" aria-hidden="true"><circle cx="24" cy="15" r="9" fill="currentColor"/><path d="M8 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/><path d="M64 4L50 30h10l-6 22 18-30H61l7-18z" fill="#FFD84D" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/><circle cx="96" cy="15" r="9" fill="currentColor"/><path d="M80 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/></svg>' +
+      '<h1>Fin du duel !</h1>' +
+      '<p class="res-avg"><b>' + formatSeconds(avg).replace(' s', '') + '</b> s par conversion</p>' +
+      '<p class="res-msg">Duel ' + code + ' · ' + DUEL_NAMES[r.key] + '<br>Compare ton temps avec celui de ton adversaire : le plus rapide gagne le duel !</p>' +
+      '<table class="res-details"><tbody>' +
+      '<tr><th>Temps total</th><td>' + formatSeconds(total) + '</td></tr>' +
+      '<tr><th>Erreurs</th><td>' + r.errors + '</td></tr>' +
+      '<tr><th>Conversions passées (+' + EVAL_PENALTY + ' s chacune)</th><td>' + r.skips + '</td></tr>' +
+      '</tbody></table>' +
+      '<div class="results-actions">' +
+      '<button class="btn-primary" data-do="rematch" data-code="' + rematchCode(code) + '" type="button">Revanche</button>' +
+      '<button class="btn-secondary" data-do="duel" type="button">Nouveau duel</button>' +
+      '</div>' +
+      '<p class="res-msg">Revanche : de nouvelles conversions, les mêmes pour vous deux si vous la lancez tous les deux.</p>';
+    setTheme('duel');
+    showScreen('results');
+  }
+
   function showResults() {
     clearPendingTimers();
     hideEvalUi();
+    if (duel) return duelResults();
 
     const r = evalRun;
     const total = r.time + r.penalty;
@@ -400,7 +539,7 @@
       '<h1>' + (medal ? 'Médaille ' + MEDAL_INFO[medal.id].name + ' !' : 'Pas de médaille cette fois') + '</h1>' +
       '<p class="res-avg"><b>' + formatSeconds(avg).replace(' s', '') + '</b> s par conversion</p>' +
       '<p class="res-msg">' + resultsMessage(medal) + '</p>' +
-      (isRecord ? '<p class="res-record">🏆 Nouveau record !</p>' : '<p class="res-best">Ton record : ' + formatBest(previousBest) + '</p>') +
+      (isRecord ? '<p class="res-record">🏆 Nouveau record !</p>' : '<p class="res-best">' + formatBest(previousBest, 'Ton record : ') + '</p>') +
       '<table class="res-details"><tbody>' +
       '<tr><th>Temps total</th><td>' + formatSeconds(total) + '</td></tr>' +
       '<tr><th>Erreurs</th><td>' + r.errors + '</td></tr>' +
@@ -441,10 +580,12 @@
     }
   }
 
-  // Retour à un menu (accueil, Tutoriels, Entraînements, Challenge) : tableau blanc
+  // Retour à un menu (accueil, Tutoriels, Entraînements, Challenge) : tableau blanc.
+  // Quitter une partie arrête le duel en cours (le tirage redevient vraiment aléatoire).
   function goToMenu(name) {
     clearPendingTimers();
     hideEvalUi();
+    endDuel();
     scoreDisplayEl.classList.add('hidden');
     mixedScoreDisplayEl.classList.add('hidden');
     setTheme('');
@@ -500,6 +641,7 @@
     DraftTable.resetTable(draftTableEl); // Modif 1 : tableau vidé à chaque nouvelle conversion
 
     const generationLevel = currentLevel === 'evaluation' ? 'moyen' : currentLevel;
+    if (currentLevel === 'evaluation') seedDuel();
     currentConversion = Generator.generate(generationLevel, exerciseCategoryPool);
 
     fromValueEl.textContent = Generator.formatNumberFR(currentConversion.fromValue);
@@ -1412,6 +1554,7 @@
   function beginMixedEvaluation() {
     mixedMode = 'evaluation';
     exerciseReturnScreen = 'challenge';
+    seedDuel(true);
     mixedTypeQueue = buildExpertQueue();
     mixedScoreDisplayEl.classList.add('hidden');
     hideEvalUi();
@@ -1426,6 +1569,7 @@
     clearPendingTimers();
     mixedFailedOnce = false;
 
+    if (mixedMode === 'evaluation') seedDuel();
     const kind = mixedMode === 'evaluation'
       ? (mixedTypeQueue.shift() || randChoice(['classique', 'temps', 'vitesse']))
       : randChoice(['temps', 'vitesse']);
@@ -1609,9 +1753,45 @@
     if (!btn) return;
     if (btn.dataset.do === 'again') {
       evalRun.restart();
+    } else if (btn.dataset.do === 'rematch') {
+      goToMenu('challenge');
+      showDuelReady(btn.dataset.code, 'Revanche !');
+    } else if (btn.dataset.do === 'duel') {
+      goToMenu('challenge');
+      openDuelPop();
     } else {
       goToMenu('challenge');
     }
+  });
+
+  // --- Écouteurs d'événements : écran du Duel ---
+  const duelCodeIn = document.getElementById('duel-code-in');
+  document.querySelectorAll('[data-duel-create]').forEach((b) => {
+    b.addEventListener('click', () => {
+      showDuelReady(newDuelCode(b.dataset.duelCreate), 'Ton code de duel', true);
+    });
+  });
+  function joinDuel() {
+    const code = duelCodeIn.value;
+    const ok = duelNum(code) >= 0;
+    document.getElementById('duel-err').hidden = ok;
+    if (ok) showDuelReady(code, 'Duel trouvé !');
+  }
+  duelCodeIn.addEventListener('input', () => {
+    duelCodeIn.value = duelCodeIn.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+  });
+  duelCodeIn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); joinDuel(); }
+  });
+  document.getElementById('duel-join').addEventListener('click', joinDuel);
+  document.querySelectorAll('[data-duel-step]').forEach((b) => {
+    b.addEventListener('click', () => duelStep(b.dataset.duelStep));
+  });
+  document.getElementById('btn-duel').addEventListener('click', openDuelPop);
+  duelPop.querySelectorAll('[data-duel-close]').forEach((b) => b.addEventListener('click', closeDuelPop));
+  duelPop.addEventListener('click', (e) => { if (e.target === duelPop) closeDuelPop(); });
+  document.getElementById('duel-launch').addEventListener('click', () => {
+    if (duelPending) launchDuel(duelPending);
   });
 
   btnHint.addEventListener('click', onHintClick);

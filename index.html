@@ -170,15 +170,21 @@
         <p class="subtitle">Réussis 5 conversions le plus vite possible. Passer une conversion te coûte 5 secondes !</p>
 
         <div class="menu-list">
-          <button class="diff-card metal metal--violet" data-diff="eval4e" type="button">
+          <button class="diff-card metal metal--silver" data-diff="eval4e" type="button">
             <span class="diff-name">Évaluation 4e</span>
             <span class="diff-desc">Cinq conversions classiques chronométrées</span>
             <span class="diff-best" hidden></span>
           </button>
-          <button class="diff-card metal metal--obsidian" data-diff="eval3e" type="button">
+          <button class="diff-card marble" data-diff="eval3e" type="button">
             <span class="diff-name">Évaluation 3e</span>
             <span class="diff-desc">Cinq conversions chronométrées parmi toutes les méthodes possibles</span>
             <span class="diff-best" hidden></span>
+          </button>
+          <!-- Duel : obsidienne bordée d'or, deux silhouettes séparées par un éclair -->
+          <button id="btn-duel" class="diff-card diff-card--icon metal metal--obsidian" type="button">
+            <span class="diff-name">Duel de conversions</span>
+            <span class="diff-desc">Les mêmes conversions que ton adversaire, grâce à un code</span>
+            <svg class="diff-ico duel-ico" viewBox="0 0 120 56" aria-hidden="true"><circle cx="24" cy="15" r="9" fill="currentColor"/><path d="M8 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/><path d="M64 4L50 30h10l-6 22 18-30H61l7-18z" fill="#FFD84D" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/><circle cx="96" cy="15" r="9" fill="currentColor"/><path d="M80 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/></svg>
           </button>
         </div>
       </div>
@@ -451,6 +457,64 @@
       <div id="draft-table" class="draft-table"></div>
     </section>
 
+    <!-- Fenêtre du Duel (comme dans Les Bases de la chimie) : créer ou rejoindre, choix 4e / 3e réservé à celui qui crée,
+         puis le code. Un code de 4 caractères donne les mêmes conversions aux deux joueurs (il contient le choix 4e / 3e). -->
+    <div id="duel-pop" class="duel-pop" hidden role="dialog" aria-modal="true" aria-labelledby="duel-pop-title">
+      <div class="duel-pop__card">
+        <h2 id="duel-pop-title" class="duel-pop__title">Mode Duel</h2>
+        <svg class="duel-pop__duo" viewBox="0 0 120 56" aria-hidden="true"><circle cx="24" cy="15" r="9" fill="currentColor"/><path d="M8 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/><path d="M64 4L50 30h10l-6 22 18-30H61l7-18z" fill="#FFD84D" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/><circle cx="96" cy="15" r="9" fill="currentColor"/><path d="M80 54v-8a16 16 0 0 1 32 0v8z" fill="currentColor"/></svg>
+
+        <div class="duel-step" data-step="choice">
+          <p class="duel-pop__text">Un joueur crée le duel et donne le code à l'autre : vous aurez exactement les mêmes conversions. À la fin, comparez vos temps&nbsp;!</p>
+          <div class="duel-pop__choices">
+          <button class="diff-card metal duel-choice duel-choice--create" data-duel-step="create" type="button">
+            <span class="diff-name">Créer un duel</span>
+            <span class="diff-desc">Choisis les conversions et obtiens un code</span>
+          </button>
+          <button class="diff-card metal duel-choice duel-choice--join" data-duel-step="join" type="button">
+            <span class="diff-name">Rejoindre un duel</span>
+            <span class="diff-desc">Tape le code de ton adversaire</span>
+          </button>
+          </div>
+          <div class="duel-pop__actions"><button class="btn-secondary" data-duel-close type="button">Annuler</button></div>
+        </div>
+
+        <div class="duel-step" data-step="create" hidden>
+          <p class="duel-pop__text">Choisis les conversions du duel : ton adversaire aura exactement les mêmes.</p>
+          <div class="duel-pop__choices">
+          <button class="diff-card metal duel-choice duel-choice--eval4e" data-duel-create="eval4e" type="button">
+            <span class="diff-name">Évaluation 4e</span>
+            <span class="diff-desc">Cinq conversions classiques chronométrées</span>
+          </button>
+          <button class="diff-card metal duel-choice duel-choice--eval3e" data-duel-create="eval3e" type="button">
+            <span class="diff-name">Évaluation 3e</span>
+            <span class="diff-desc">Cinq conversions parmi toutes les méthodes possibles</span>
+          </button>
+          </div>
+          <div class="duel-pop__actions"><button class="btn-secondary" data-duel-step="choice" type="button">&larr; Retour</button></div>
+        </div>
+
+        <div class="duel-step" data-step="join" hidden>
+          <p class="duel-pop__text">Tape le code à 4 caractères de ton adversaire.</p>
+          <input id="duel-code-in" class="duel-code-in" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Code du duel" />
+          <p id="duel-err" class="duel-err" hidden>Ce code n'existe pas : vérifie les 4 caractères avec ton adversaire.</p>
+          <div class="duel-pop__actions">
+            <button class="btn-secondary" data-duel-step="choice" type="button">&larr; Retour</button>
+            <button id="duel-join" class="btn-primary" type="button">Valider</button>
+          </div>
+        </div>
+
+        <div class="duel-step" data-step="ready" hidden>
+          <p id="duel-code" class="duel-code"></p>
+          <p id="duel-level" class="duel-level"></p>
+          <p id="duel-tip" class="duel-pop__text"></p>
+          <div class="duel-pop__actions">
+            <button class="btn-secondary" data-duel-close type="button">Annuler</button>
+            <button id="duel-launch" class="btn-primary" type="button">Lancer le duel</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <canvas id="confetti-canvas"></canvas>

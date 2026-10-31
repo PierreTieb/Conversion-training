@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" preserveAspectRatio="xMidYMid slice">
+  <!-- Marbre blanc veiné de gris, fond du bouton « Évaluation 3e » -->
+  <defs>
+    <filter id="veines" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.004 0.016" numOctaves="5" seed="11"/>
+      <feColorMatrix values="0 0 0 0 .42  0 0 0 0 .45  0 0 0 0 .5  -3.2 0 0 0 1.1"/>
+    </filter>
+    <filter id="nuages" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="4"/>
+      <feColorMatrix values="0 0 0 0 .78  0 0 0 0 .8  0 0 0 0 .83  0 0 0 .45 -.12"/>
+    </filter>
+  </defs>
+  <rect width="600" height="240" fill="#F6F4F0"/>
+  <rect width="600" height="240" filter="url(#nuages)"/>
+  <g transform="rotate(-18 300 120)"><rect x="-150" y="-150" width="900" height="540" filter="url(#veines)" opacity=".75"/></g>
+</svg>

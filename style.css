@@ -73,13 +73,6 @@ body {
 @media (max-width: 600px) {
   .bg-science { background-size: 1040px 650px, auto, auto; }
 }
-/* Cadre en aluminium du tableau */
-.bg-science::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  box-shadow: inset 0 0 0 5px #E3E7EC, inset 0 0 0 7px #C2C9D1, inset 0 0 18px 7px rgba(46, 58, 70, 0.08);
-}
 /* Halo blanc : les textes posés sur le tableau restent lisibles par-dessus les écritures */
 h1, .subtitle, .btn-text, .draft-title {
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.95), 0 0 10px rgba(255, 255, 255, 0.85);
@@ -126,8 +119,8 @@ body[data-theme="eval4e"] {
   --theme-accent: #7A66AE;
 }
 body[data-theme="eval3e"] {
-  --bg-tint: linear-gradient(180deg, #FAF7EF 0%, #F1EAD8 55%, #E5DABD 100%);
-  --theme-accent: #B08A24;
+  --bg-tint: linear-gradient(180deg, #F2FBFA 0%, #DFF4F1 55%, #C9ECE7 100%);
+  --theme-accent: #1C9C90;
 }
 .btn-custom { --c-light: #FFFFFF; --c-mid: #E8ECF1; --c-dark: #B9C3CF; --c-text: #2E3A46; }
 
@@ -140,7 +133,7 @@ body[data-theme="eval3e"] {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 24px 16px 20px;
+  padding: 18px 16px 20px;   /* même hauteur que les autres applis (bouton de retour et titres alignés) */
 }
 
 .screen { display: none; width: 100%; max-width: 520px; }
@@ -149,11 +142,13 @@ body[data-theme="eval3e"] {
 /* ===== Accueil ===== */
 .home-inner {
   text-align: center;
-  padding-top: 4vh;
+  padding-top: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
+/* Titres des menus à la même hauteur que dans les autres applis */
+.home-inner > h1 { margin-top: 16px; }
 
 h1 {
   font-family: var(--font-display);
@@ -235,11 +230,85 @@ h1 {
   transition: transform 0.7s ease;
 }
 .metal:hover::after { transform: translateX(30%); }
-.metal--violet {
-  --c-dark: #4E3F7A;
-  background: linear-gradient(160deg, #CFC6E8 0%, #8F7EC2 36%, #B9ADDC 54%, #6C5B9C 100%);
+/* Évaluation 4e : argent poli, bordé du mauve d'origine ; Évaluation 3e : marbre (plus bas) ; Duel : obsidienne */
+.metal--silver {
+  --c-dark: #6C5B9C;
+  color: #2E2650; text-shadow: 0 1px 0 rgba(255,255,255,0.75);
+  background: linear-gradient(160deg, #FFFFFF 0%, #C7CDD6 36%, #EEF1F5 54%, #9AA3B0 100%);
+  box-shadow: 0 6px 0 var(--c-dark), 0 12px 22px rgba(46,38,80,0.22), inset 0 0 0 3px #8F7EC2, inset 0 2px 0 rgba(255,255,255,0.9);
 }
-.metal--violet .diff-best { background: rgba(255,255,255,0.22); color: #FFFFFF; }
+.metal--silver:active { box-shadow: 0 2px 0 var(--c-dark), 0 6px 10px rgba(46,38,80,0.2), inset 0 0 0 3px #8F7EC2; }
+.metal--silver .diff-best { background: rgba(255,255,255,0.65); color: #3B2F66; }
+/* Évaluation 3e : marbre blanc veiné, cerclé de turquoise */
+.marble {
+  --c-dark: #1C9C90; color: #1F3B3A;
+  background: #F6F4F0 url("img/marbre.svg") center / cover no-repeat;
+  box-shadow: 0 6px 0 var(--c-dark), 0 12px 22px rgba(20,90,84,0.22), inset 0 0 0 3px #2EC4B6, inset 0 2px 0 rgba(255,255,255,0.9);
+}
+.marble:active { box-shadow: 0 2px 0 var(--c-dark), 0 6px 10px rgba(20,90,84,0.2), inset 0 0 0 3px #2EC4B6; }
+.marble .diff-name, .marble .diff-desc { text-shadow: 0 0 6px #fff, 0 0 2px #fff; }
+.marble .diff-best { background: rgba(255,255,255,0.75); color: #155E57; }
+.diff-card > .duel-ico { width: 64px; height: auto; color: #FFE39A; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+.diff-card--icon.metal--obsidian { padding-right: 92px; }
+
+/* Petite médaille du record, à côté du temps (à la place des emojis) */
+.diff-best { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; }
+.diff-best .medal { width: 18px; height: 23px; margin: -2px 0; animation: none; flex: none; }
+.diff-best .medal__disc { box-shadow: 0 0 0 1px var(--m3), 0 0 0 2px var(--m4); }
+.diff-best .medal__ring { box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); }
+.diff-best .medal__star { font-size: 0.55rem; text-shadow: none; }
+.diff-best .medal__spark, .diff-best .medal__shine { display: none; }
+.res-best .medal { display: inline-block; vertical-align: middle; width: 20px; height: 26px; margin: -4px 4px 0; animation: none; }
+.res-best .medal__disc { box-shadow: 0 0 0 1px var(--m3), 0 0 0 2px var(--m4); }
+.res-best .medal__star { font-size: 0.6rem; text-shadow: none; }
+.res-best .medal__spark, .res-best .medal__shine { display: none; }
+
+/* Écran de fin du duel */
+body[data-theme="duel"] {
+  --bg-tint: linear-gradient(180deg, #FAF7EF 0%, #F1EAD8 55%, #E5DABD 100%);
+  --theme-accent: #B08A24;
+}
+/* Fenêtre du Duel (comme la fenêtre du Duel de la Chimie) */
+.duel-pop {
+  position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; overflow-y: auto;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: rgba(30, 36, 48, 0.55);
+}
+.duel-pop[hidden], .duel-step[hidden] { display: none; }
+.duel-pop__card {
+  width: min(100%, 440px); max-height: 100%; overflow-y: auto; padding: 20px 18px 18px; border-radius: 26px;
+  background: #FFFFFF; box-shadow: 0 20px 50px rgba(0,0,0,0.35); text-align: center; animation: pop 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.duel-pop__title { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.45rem; }
+.duel-pop__duo { display: block; width: 130px; height: auto; margin: 6px auto 4px; color: #2B3440; }
+.duel-pop__text { margin: 6px 0 12px; font-weight: 700; line-height: 1.45; text-align: left; }
+.duel-pop__choices { display: flex; flex-direction: column; gap: 14px; margin: 4px 0 6px; }
+.duel-pop__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 14px; }
+/* Boutons du duel : lisses et brillants (reflet des boutons métal), sombres, avec un liseré de couleur */
+.duel-choice {
+  --liser: #FFD84D; --c-dark: #0E1118; text-align: left;
+  background: linear-gradient(160deg, #46505F 0%, #1D222C 40%, #343C49 58%, #10131A 100%);
+  box-shadow: 0 6px 0 var(--c-dark), 0 12px 22px rgba(0,0,0,0.3), inset 0 0 0 2.5px var(--liser), inset 0 2px 0 rgba(255,255,255,0.28);
+}
+.duel-choice:active { box-shadow: 0 2px 0 var(--c-dark), 0 6px 10px rgba(0,0,0,0.28), inset 0 0 0 2.5px var(--liser); }
+.duel-choice .diff-name { color: var(--liser); }
+.duel-choice--create { --liser: #FFD84D; }
+.duel-choice--join { --liser: #FF9C42; }
+.duel-choice--eval4e { --liser: #B9A9F0; }
+.duel-choice--eval3e { --liser: #2EC4B6; }
+.duel-code-in {
+  display: block; margin: 0 auto; width: 9.5ch; padding: 8px 10px; border: 2.5px solid #B9C4CE; border-radius: 14px; background: #fff; color: inherit;
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: .25em; text-align: center; text-transform: uppercase;
+}
+.duel-code-in:focus { outline: none; border-color: #DEB448; box-shadow: 0 0 0 4px rgba(222,180,72,0.35); }
+.duel-err { margin: 8px 0 0; font-weight: 800; color: #C0392B; }
+.duel-err[hidden] { display: none; }
+.duel-code {
+  display: inline-block; margin: 8px 0 2px; padding: 6px 18px; border-radius: 16px; font-family: var(--font-display); font-size: 2.6rem; font-weight: 700;
+  letter-spacing: .25em; text-indent: .25em; color: #FFE39A; background: linear-gradient(160deg, #4C463E, #1E1C1A 60%, #3D372E); box-shadow: 0 4px 0 #8C6A1C, inset 0 0 0 2px rgba(222,180,72,0.8);
+}
+.duel-level { margin: 2px 0 6px; font-weight: 800; color: #8C6A1C; }
+.duel-ico--big { display: block; width: 170px; height: auto; margin: 0 auto 4px; color: #2B4746; }
 .metal--obsidian {
   --c-dark: #8C6A1C;
   background: linear-gradient(160deg, #4C463E 0%, #1E1C1A 38%, #3D372E 55%, #121110 100%);
